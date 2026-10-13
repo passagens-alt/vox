@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>VOX — seu PDF virando audiolivro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Instrument+Sans:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#eef0f3; --card:#fff; --ink:#18202e; --muted:#5b6475; --line:#dde1e8;
+  --cover:#1d3b36; --cover2:#14302b; --gold:#b98a2c; --gold-soft:#f4e6c4; --ok:#2f7a55; --bad:#b4413a;
+  --display:"Young Serif",Georgia,serif; --ui:"Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --shadow:0 1px 2px rgba(20,30,50,.06),0 8px 24px rgba(20,30,50,.06);
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#0f141c; --card:#161d28; --ink:#e8ebf0; --muted:#9aa3b2; --line:#263040;
+  --cover:#1f4a43; --cover2:#163a34; --gold:#dcb35e; --gold-soft:#3d331b; --ok:#6cc79a; --bad:#e8857d;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25); color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--ui);font-size:15px;line-height:1.55;padding:0 16px 120px}
+.wrap{max-width:1000px;margin:0 auto;display:flex;flex-direction:column;gap:28px;padding-block:24px 40px}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+[hidden]{display:none!important}
+.top{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+.logo{font-family:var(--display);font-size:2.2rem;letter-spacing:.08em;line-height:1}
+.logo b{color:var(--gold);font-weight:400}
+.tag{color:var(--muted)}
+.card{background:var(--card);border-radius:18px;box-shadow:var(--shadow);padding:28px}
+h2{font-family:var(--display);font-weight:400;font-size:1.35rem;margin:0 0 4px}
+.sub{color:var(--muted);margin:0 0 18px}
+.eyebrow{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:600}
+
+/* envio */
+.drop{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;border:2px dashed var(--line);border-radius:14px;padding:44px 20px;cursor:pointer;transition:border-color .2s,background .2s}
+.drop:hover,.drop.over{border-color:var(--gold);background:color-mix(in srgb,var(--gold-soft) 35%,transparent)}
+.drop svg{width:44px;height:44px;fill:var(--gold)}
+.drop strong{font-family:var(--display);font-weight:400;font-size:1.4rem}
+.drop span{color:var(--muted);font-size:.9rem}
+input[type=file]{display:none}
+
+/* livro */
+.book{display:grid;grid-template-columns:150px 1fr;gap:28px;align-items:center}
+@media (max-width:620px){.book{grid-template-columns:1fr;justify-items:center;text-align:center}}
+.cover{width:150px;aspect-ratio:2/3;border-radius:3px 8px 8px 3px;position:relative;background:linear-gradient(90deg,var(--cover2) 0 9%,rgba(255,255,255,.08) 9% 10%,var(--cover) 10%);
+  box-shadow:inset -6px 0 12px rgba(0,0,0,.15),0 12px 26px rgba(10,20,30,.28);color:#f1e3bd;padding:18px 12px 14px 22px;display:flex;flex-direction:column;justify-content:space-between}
+.cover::after{content:"";position:absolute;inset:9px 8px 9px 18px;border:1px solid rgba(220,179,94,.55);border-radius:3px}
+.cover .ct{font-family:var(--display);font-size:1rem;line-height:1.15;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical;overflow:hidden;text-align:left}
+.cover .ca{font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;opacity:.8;text-align:left}
+.book h1{font-family:var(--display);font-weight:400;font-size:clamp(1.5rem,3.5vw,2.2rem);line-height:1.1;margin:4px 0 8px;overflow-wrap:anywhere}
+.facts{color:var(--muted);display:flex;gap:16px;flex-wrap:wrap}
+@media (max-width:620px){.facts{justify-content:center}}
+.facts b{color:var(--ink)}
+.link{background:none;border:0;color:var(--gold);cursor:pointer;padding:0;font-weight:600;margin-top:10px}
+
+/* vozes */
+.voices{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
+.voice{position:relative;display:flex;align-items:center;gap:12px;border:1.5px solid var(--line);border-radius:12px;padding:12px;cursor:pointer}
+.voice:has(input:checked){border-color:var(--gold);background:color-mix(in srgb,var(--gold-soft) 45%,transparent)}
+.voice input{position:absolute;opacity:0}
+.voice:has(input:focus-visible){outline:2px solid var(--gold);outline-offset:2px}
+.av{width:38px;height:38px;border-radius:50%;flex:none;display:grid;place-items:center;font-family:var(--display);background:var(--cover);color:#f1e3bd}
+.vt{min-width:0;flex:1}
+.vt b{display:block;font-weight:600}
+.vt small{color:var(--muted);font-size:.78rem;line-height:1.3;display:block}
+.sample{all:unset;cursor:pointer;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;flex:none;border:1px solid var(--line)}
+.sample:hover{border-color:var(--gold)}
+.sample svg{width:14px;height:14px;fill:currentColor}
+.row{display:flex;gap:16px;flex-wrap:wrap;align-items:end;margin-top:20px}
+label.f{display:flex;flex-direction:column;gap:5px;font-size:.8rem;color:var(--muted)}
+select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:9px 12px}
+.go{display:inline-flex;align-items:center;gap:10px;background:var(--cover);color:#fff;border:0;border-radius:999px;padding:13px 24px;font-weight:600;font-size:1rem;cursor:pointer}
+.go:hover{filter:brightness(1.1)}
+.go:disabled{opacity:.5;cursor:default}
+.ghost{background:transparent;border:1px solid var(--line);border-radius:999px;padding:10px 18px;cursor:pointer;font-weight:500;text-decoration:none;color:var(--ink);display:inline-flex;gap:8px;align-items:center}
+.ghost:hover{border-color:var(--gold)}
+
+/* capa real e página sendo lida */
+.cover img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1}
+.cover.real::after,.cover.real>:not(img){visibility:hidden}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:24px;align-items:start}
+.grid.nopv{grid-template-columns:minmax(0,1fr)}
+@media (max-width:780px){.grid{grid-template-columns:1fr}.pv{order:-1;max-width:320px;margin:0 auto;width:100%}}
+.pv{position:sticky;top:16px;display:flex;flex-direction:column;gap:8px}
+.pv .frame{background:var(--bg);border-radius:8px;overflow:hidden;box-shadow:var(--shadow)}
+.pv img{display:block;width:100%;max-height:60vh;object-fit:contain;transition:opacity .35s;background:#fff}
+.pv img.fade{opacity:.25}
+.pv .cap{display:flex;justify-content:space-between;font-size:.78rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.pv .live{color:var(--gold);font-weight:600;letter-spacing:.08em;text-transform:uppercase;font-size:.68rem}
+.thumb{width:34px;height:50px;border-radius:2px 5px 5px 2px;object-fit:cover;flex:none;background:var(--cover)}
+/* capítulos */
+.chs{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.ch{display:grid;grid-template-columns:auto 34px 1fr auto;gap:12px;align-items:center;padding:12px 6px;border-top:1px solid var(--line)}
+.ch:first-child{border-top:0}
+.ch .num{font-family:var(--display);color:var(--muted);text-align:center}
+.ch .t{min-width:0}
+.ch .t div{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ch .t small{color:var(--muted);font-variant-numeric:tabular-nums}
+.ch .pb{height:3px;background:var(--line);border-radius:2px;overflow:hidden;margin-top:6px}
+.ch .pb i{display:block;height:100%;width:0;background:var(--gold);transition:width .4s}
+.ch.playing{background:color-mix(in srgb,var(--gold-soft) 45%,transparent);border-radius:10px}
+.ch.playing .num{color:var(--gold)}
+.acts{display:flex;gap:6px;align-items:center}
+.ib{all:unset;cursor:pointer;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--line)}
+.ib:hover{border-color:var(--gold)}
+.ib[aria-disabled=true]{opacity:.35;pointer-events:none}
+.ib svg{width:16px;height:16px;fill:currentColor}
+.chk{width:18px;height:18px;accent-color:var(--cover)}
+.pill{font-size:.75rem;padding:3px 9px;border-radius:999px;background:var(--bg);color:var(--muted);white-space:nowrap}
+.pill.ok{color:var(--ok)}.pill.run{color:var(--gold)}
+.head{display:flex;justify-content:space-between;align-items:end;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.msg{padding:12px 16px;border-radius:12px;background:var(--gold-soft)}
+.msg.err{color:var(--bad)}
+
+/* tocador */
+.player{position:fixed;left:0;right:0;bottom:0;padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));background:color-mix(in srgb,var(--card) 92%,transparent);backdrop-filter:blur(10px);border-top:1px solid var(--line)}
+.pin{max-width:1000px;margin:0 auto;display:grid;grid-template-columns:auto auto minmax(0,1fr);gap:16px;align-items:center}
+.ctrl{display:flex;gap:4px;align-items:center}
+.pl{all:unset;cursor:pointer;width:46px;height:46px;border-radius:50%;background:var(--ink);color:var(--bg);display:grid;place-items:center}
+.pl svg{width:20px;height:20px;fill:currentColor}
+.sk{all:unset;cursor:pointer;width:36px;height:36px;border-radius:50%;display:grid;place-items:center}
+.sk svg{width:18px;height:18px;fill:currentColor}
+.pi{min-width:0;display:flex;flex-direction:column;gap:4px}
+.pi .a{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pi input[type=range]{width:100%;accent-color:var(--gold)}
+.pi .tm{display:flex;justify-content:space-between;font-size:.75rem;color:var(--muted);font-variant-numeric:tabular-nums}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><div class="logo">VO<b>X</b></div><div class="tag">seu PDF virando audiolivro, capítulo por capítulo</div></div>
+
+  <section class="card" id="stepUpload">
+    <label class="drop" id="drop" for="pdf">
+      <svg viewBox="0 0 24 24"><path d="M12 3a4 4 0 0 0-4 4v5a4 4 0 0 0 8 0V7a4 4 0 0 0-4-4zm7 9a7 7 0 0 1-6 6.93V22h-2v-3.07A7 7 0 0 1 5 12h2a5 5 0 0 0 10 0z"/></svg>
+      <strong>Envie o seu PDF</strong>
+      <span>Arraste aqui ou clique para escolher · até 80 MB</span>
+    </label>
+    <input type="file" id="pdf" accept=".pdf,application/pdf">
+    <p class="msg" id="upMsg" hidden></p>
+  </section>
+
+  <section class="card" id="stepBook" hidden>
+    <div class="book">
+      <div class="cover" id="cover"><img id="coverImg" alt="" hidden><div class="ct" id="coverT"></div><div class="ca">VOX · audiolivro</div></div>
+      <div>
+        <div class="eyebrow">Seu livro</div>
+        <h1 id="bookT"></h1>
+        <div class="facts"><span><b id="nCaps">0</b> capítulos</span><span><b id="nPag">0</b> páginas</span><span>cerca de <b id="nDur">—</b> de áudio</span></div>
+        <button class="link" id="trocar">Trocar de PDF</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" id="stepVoice" hidden>
+    <h2>Escolha a voz</h2>
+    <p class="sub">Toque em ▶ para ouvir uma amostra.</p>
+    <div class="voices" id="voices">
+      {% for id, nome, desc, motor in vozes %}
+      <label class="voice">
+        <input type="radio" name="voz" value="{{ id }}" {% if id == padrao %}checked{% endif %}>
+        <span class="av">{{ nome[0] }}</span>
+        <span class="vt"><b>{{ nome }}</b><small>{{ desc }}</small></span>
+        <button type="button" class="sample" data-voz="{{ id }}" aria-label="Ouvir amostra de {{ nome }}"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
+      </label>
+      {% endfor %}
+    </div>
+    <div class="row">
+      <label class="f" for="vel">Velocidade
+        <select id="vel"><option value="-20">Mais devagar</option><option value="-10">Um pouco devagar</option><option value="0" selected>Normal</option><option value="10">Um pouco mais rápida</option><option value="25">Rápida</option></select>
+      </label>
+    </div>
+  </section>
+
+  <section class="card" id="stepCaps" hidden>
+    <div class="head">
+      <div><h2>Capítulos</h2><p class="sub" id="capsSub" style="margin:0">Desmarque os que não quer narrar.</p></div>
+      <div class="acts" id="topActs">
+        <button class="go" id="gerar">Gerar audiolivro</button>
+        <a class="ghost" id="zip" hidden>Baixar todos (ZIP)</a>
+      </div>
+    </div>
+    <p class="msg" id="genMsg" hidden></p>
+    <div class="grid nopv" id="grid">
+      <ol class="chs" id="chs"></ol>
+      <figure class="pv" id="pv" hidden style="margin:0">
+        <div class="frame"><img id="pvImg" alt="Página do livro"></div>
+        <figcaption class="cap"><span class="live" id="pvLive">capa</span><span id="pvNum"></span></figcaption>
+      </figure>
+    </div>
+  </section>
+</div>
+
+<div class="player" id="player" hidden>
+  <div class="pin">
+    <img class="thumb" id="thumb" alt="" hidden>
+    <div class="ctrl">
+      <button class="sk" id="pPrev" aria-label="Capítulo anterior"><svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg></button>
+      <button class="pl" id="pPlay" aria-label="Tocar"><svg viewBox="0 0 24 24" id="pIcon"><path d="M8 5v14l11-7z"/></svg></button>
+      <button class="sk" id="pNext" aria-label="Próximo capítulo"><svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg></button>
+    </div>
+    <div class="pi">
+      <div class="a" id="pTitle"></div>
+      <input type="range" id="seek" min="0" max="1000" value="0" aria-label="Posição">
+      <div class="tm"><span id="tNow">0:00</span><span id="tEnd">0:00</span></div>
+    </div>
+  </div>
+</div>
+<audio id="audio" preload="metadata"></audio>
+<audio id="amostra"></audio>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+const $=id=>document.getElementById(id);
+let file=null, caps=[], job=null, poll=null, cur=-1;
+const PLAY='<path d="M8 5v14l11-7z"/>', PAUSE='<path d="M6 5h4v14H6zm8 0h4v14h-4z"/>', DL='<path d="M5 20h14v-2H5zm7-3 5-5h-3V4h-4v8H7z"/>';
+const fmt=s=>isFinite(s)?Math.floor(s/60)+":"+String(Math.floor(s%60)).padStart(2,"0"):"0:00";
+const fmtMin=m=>m<60?m+" min":Math.floor(m/60)+" h "+String(m%60).padStart(2,"0")+" min";
+function msg(el,t,err){el.textContent=t;el.hidden=!t;el.classList.toggle("err",!!err)}
+
+/* envio */
+$("pdf").onchange=e=>escolher(e.target.files[0]);
+const drop=$("drop");
+["dragenter","dragover"].forEach(t=>drop.addEventListener(t,e=>{e.preventDefault();drop.classList.add("over")}));
+["dragleave","drop"].forEach(t=>drop.addEventListener(t,e=>{e.preventDefault();drop.classList.remove("over")}));
+drop.addEventListener("drop",e=>escolher(e.dataTransfer.files[0]));
+$("trocar").onclick=()=>location.reload();
+
+async function escolher(f){
+  if(!f) return; file=f; msg($("upMsg"),"Lendo o PDF e procurando os capítulos…");
+  const fd=new FormData(); fd.append("pdf",f);
+  const r=await fetch("/analisar",{method:"POST",body:fd}); const j=await r.json();
+  if(!r.ok){msg($("upMsg"),j.erro,true);return}
+  if(!j.capitulos.length){msg($("upMsg"),"Este PDF não tem texto selecionável (provavelmente é escaneado). Passe por OCR antes.",true);return}
+  caps=j.capitulos; abrirPdf(f);
+  $("stepUpload").hidden=true; ["stepBook","stepVoice","stepCaps"].forEach(id=>$(id).hidden=false);
+  $("bookT").textContent=j.titulo; $("coverT").textContent=j.titulo;
+  $("nCaps").textContent=caps.length; $("nPag").textContent=j.paginas;
+  $("nDur").textContent=fmtMin(caps.reduce((a,c)=>a+c.minutos,0));
+  const ol=$("chs"); ol.innerHTML="";
+  caps.forEach((c,i)=>{const li=document.createElement("li"); li.className="ch"; li.id="c"+i;
+    li.innerHTML=`<input type="checkbox" class="chk" checked aria-label="Narrar este capítulo"><span class="num">${i+1}</span><div class="t"><div></div><small>${c.minutos} min</small></div><span class="pill">na fila</span>`;
+    li.querySelector(".t div").textContent=c.titulo; li.querySelector(".pill").hidden=true; ol.appendChild(li);});
+}
+
+/* páginas do PDF (desenhadas no navegador) */
+let pdfDoc=null, shownPage=-1; const cache=new Map();
+async function renderPage(p,w){const pg=await pdfDoc.getPage(p+1), b=pg.getViewport({scale:1}), vp=pg.getViewport({scale:w/b.width});
+  const cv=document.createElement("canvas"); cv.width=Math.round(vp.width); cv.height=Math.round(vp.height);
+  await pg.render({canvasContext:cv.getContext("2d"),viewport:vp,background:"#fff"}).promise;
+  return await new Promise(r=>cv.toBlob(x=>r(URL.createObjectURL(x)),"image/jpeg",.86));}
+function pageURL(p){if(!cache.has(p)){cache.set(p,renderPage(p,600)); if(cache.size>30){const [k,v]=cache.entries().next().value; cache.delete(k); v.then(URL.revokeObjectURL)}} return cache.get(p)}
+async function abrirPdf(f){try{pdfDoc=await pdfjsLib.getDocument({data:await f.arrayBuffer()}).promise;
+  const url=await renderPage(0,420); $("coverImg").src=$("thumb").src=url; $("coverImg").hidden=false; $("cover").classList.add("real");
+  $("grid").classList.remove("nopv"); $("pv").hidden=false; showPage(0,"capa");}catch(e){pdfDoc=null}}
+async function showPage(p,label){if(!pdfDoc) return; p=Math.max(0,Math.min(pdfDoc.numPages-1,p));
+  $("pvLive").textContent=label||"lendo agora"; if(p===shownPage) return; shownPage=p;
+  $("pvNum").textContent=`página ${p+1} de ${pdfDoc.numPages}`; const img=$("pvImg"); img.classList.add("fade");
+  const url=await pageURL(p); if(shownPage!==p) return; img.src=url; img.onload=()=>img.classList.remove("fade");
+  if(p+1<pdfDoc.numPages) pageURL(p+1);}
+
+/* amostras */
+document.querySelectorAll(".sample").forEach(b=>b.onclick=e=>{e.preventDefault();const a=$("amostra");
+  const was=b.classList.contains("on"); document.querySelectorAll(".sample").forEach(x=>{x.classList.remove("on");x.innerHTML='<svg viewBox="0 0 24 24">'+PLAY+'</svg>'});
+  a.pause(); if(was) return;
+  b.classList.add("on"); b.innerHTML='<svg viewBox="0 0 24 24">'+PAUSE+'</svg>';
+  a.src="/amostra/"+encodeURIComponent(b.dataset.voz); a.play().catch(()=>{});
+  a.onended=a.onerror=()=>{b.classList.remove("on");b.innerHTML='<svg viewBox="0 0 24 24">'+PLAY+'</svg>'}});
+
+/* gerar */
+$("gerar").onclick=async()=>{
+  const marcados=[...document.querySelectorAll(".ch .chk")].map((c,i)=>c.checked?i:null).filter(i=>i!==null);
+  if(!marcados.length){msg($("genMsg"),"Marque pelo menos um capítulo.",true);return}
+  $("gerar").disabled=true; msg($("genMsg"),"Enviando…");
+  const fd=new FormData(); fd.append("pdf",file); fd.append("voz",document.querySelector("input[name=voz]:checked").value);
+  fd.append("velocidade",$("vel").value); fd.append("capitulos",marcados.join(","));
+  const r=await fetch("/converter",{method:"POST",body:fd}); const j=await r.json();
+  if(!r.ok){msg($("genMsg"),j.erro,true);$("gerar").disabled=false;return}
+  job=j.id; $("stepVoice").hidden=true; $("gerar").hidden=true;
+  $("capsSub").textContent="Cada capítulo fica disponível assim que termina.";
+  const ol=$("chs"); ol.innerHTML="";
+  j.capitulos.forEach((c,i)=>{const li=document.createElement("li"); li.className="ch"; li.id="c"+i;
+    li.innerHTML=`<span></span><span class="num">${i+1}</span><div class="t"><div></div><small></small><div class="pb"><i></i></div></div>
+      <div class="acts"><span class="pill">na fila</span><button class="ib play" aria-label="Ouvir" aria-disabled="true"><svg viewBox="0 0 24 24">${PLAY}</svg></button>
+      <a class="ib dl" aria-label="Baixar MP3" aria-disabled="true"><svg viewBox="0 0 24 24">${DL}</svg></a></div>`;
+    li.querySelector(".t div").textContent=c.titulo;
+    li.querySelector(".play").onclick=()=>tocar(i); ol.appendChild(li);});
+  caps=j.capitulos; atualizar(j); poll=setInterval(checar,2000);
+};
+async function checar(){const r=await fetch("/status/"+job); if(!r.ok) return; const j=await r.json(); atualizar(j);
+  if(j.status!=="narrando") clearInterval(poll);}
+function atualizar(j){
+  caps=j.capitulos; let prontos=0;
+  j.capitulos.forEach((c,i)=>{const li=$("c"+i); if(!li) return;
+    const pill=li.querySelector(".pill"), ok=c.status==="pronto"; if(ok) prontos++;
+    pill.textContent=ok?"pronto":c.status==="narrando"?`narrando ${c.progresso}%`:"na fila";
+    pill.className="pill"+(ok?" ok":c.status==="narrando"?" run":"");
+    li.querySelector("small").textContent=`${c.minutos} min`;
+    li.querySelector(".pb i").style.width=(ok?100:c.progresso)+"%"; li.querySelector(".pb").hidden=ok;
+    li.querySelector(".play").setAttribute("aria-disabled",!ok);
+    const dl=li.querySelector(".dl"); dl.setAttribute("aria-disabled",!ok); if(ok) dl.href=`/audio/${job}/${i}?baixar=1`;});
+  if(prontos){$("zip").hidden=false; $("zip").href="/zip/"+job; $("zip").textContent=prontos===j.capitulos.length?"Baixar todos (ZIP)":`Baixar prontos (${prontos})`}
+  if(j.status==="erro") msg($("genMsg"),"A narração parou: "+j.erro,true);
+  else if(j.status==="pronto") msg($("genMsg"),"Audiolivro pronto! Ouça aqui ou baixe os MP3.");
+  else msg($("genMsg"),`Narrando… ${prontos} de ${j.capitulos.length} capítulos prontos. Pode deixar esta página aberta.`);
+}
+
+/* tocador */
+const au=$("audio");
+function tocar(i){if(!caps[i]||caps[i].status!=="pronto") return;
+  if(cur===i){au.paused?au.play():au.pause();return}
+  cur=i; au.src=`/audio/${job}/${i}`; au.play().catch(()=>{}); $("player").hidden=false; $("thumb").hidden=!pdfDoc;
+  showPage(caps[i].pag_ini);
+  $("pTitle").textContent=`${i+1}. ${caps[i].titulo}`;
+  document.querySelectorAll(".ch").forEach((li,k)=>li.classList.toggle("playing",k===i));}
+function icons(){const p=!au.paused; $("pIcon").innerHTML=p?PAUSE:PLAY;
+  document.querySelectorAll(".ch .play").forEach((b,k)=>b.querySelector("svg").innerHTML=(p&&k===cur)?PAUSE:PLAY);}
+au.onplay=au.onpause=icons;
+au.ontimeupdate=()=>{$("tNow").textContent=fmt(au.currentTime);$("tEnd").textContent=fmt(au.duration); if(!au.duration) return;
+  const f=au.currentTime/au.duration; $("seek").value=1000*f;
+  const c=caps[cur]; if(c&&c.pag_ini!=null){const n=c.pag_fim-c.pag_ini+1; showPage(c.pag_ini+Math.min(n-1,Math.floor(f*n)))}};
+au.onended=()=>{if(caps[cur+1]&&caps[cur+1].status==="pronto") tocar(cur+1); else icons()};
+$("seek").oninput=e=>{if(au.duration) au.currentTime=e.target.value/1000*au.duration};
+$("pPlay").onclick=()=>au.paused?au.play():au.pause();
+$("pPrev").onclick=()=>cur>0&&tocar(cur-1);
+$("pNext").onclick=()=>tocar(cur+1);
+</script>
+</body>
+</html>

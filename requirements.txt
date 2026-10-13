@@ -1,0 +1,4 @@
+flask>=3.0
+pypdf>=4.0
+edge-tts>=6.1
+gunicorn>=22.0
