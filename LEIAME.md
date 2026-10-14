@@ -8,6 +8,10 @@ Envie um PDF, EPUB ou Word (.docx), escolha a voz e receba o audiolivro em MP3, 
 - **Tocador completo**: velocidade de 0,75× a 2×, voltar/avançar 15 s, timer para dormir (15, 30, 45, 60 min ou fim do capítulo), continua de onde parou e funciona com os controles da tela de bloqueio do celular.
 - **Texto limpo**: tira números de página, cabeçalhos e rodapés repetidos, notas de rodapé e as chamadas de nota, para a narração não ler essas coisas (dá para desligar).
 - **Pronúncias**: lista "escreve assim → fala assim" para nomes e siglas, com botão para ouvir como fica. Fica salva no aparelho.
+- **Vozes nos diálogos**: escolha uma segunda voz para as falas (com travessão — ou entre aspas “ ”). O narrador continua com a voz principal.
+- **Marcadores**: botão 🔖 no tocador guarda o trecho com uma anotação; a lista fica no livro e leva direto ao ponto.
+- **Modo carro**: tela cheia com botões grandes (voltar/avançar 30 s, capítulo, marcar) e tela sempre acesa.
+- **Ajustes de som** (no aparelho, sem pesar o servidor): reforçar a voz, pular silêncios e música de fundo (ambiente, chuva ou mar, gerada no próprio navegador, sem direitos autorais). Valem para ouvir no site, não entram nos MP3 baixados.
 - **Capa e páginas**: mostra a capa real do livro e a página que está sendo narrada.
 
 ## Como os capítulos são encontrados

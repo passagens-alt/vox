@@ -9,7 +9,7 @@ import asyncio, io, json, os, re, tempfile, threading, unicodedata, urllib.reque
 import edge_tts
 from flask import Flask, abort, jsonify, render_template, request, send_file
 import leitura
-from leitura import palavras, pronunciar
+from leitura import palavras, pronunciar, segmentar, sem_marcas
 
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 80 * 1024 * 1024
@@ -103,11 +103,16 @@ def trabalhar(job_id):
         for n, cap in enumerate(job["capitulos"]):
             cap["status"] = "narrando"
             texto = pronunciar(cap["texto"], job["pron"])
-            partes = list(blocos(texto, 3800 if MOTOR.get(job["voz"]) == "openai" else 3000))
+            vd = job.get("voz_dialogo")
+            if vd and vd != job["voz"]:  # narrador + outra voz nas falas
+                trechos = [(vd if tipo == "d" else job["voz"], t) for tipo, t in segmentar(texto)]
+            else:
+                trechos = [(job["voz"], sem_marcas(texto))]
+            partes = [(v, b) for v, t in trechos for b in blocos(t, 3800 if MOTOR.get(v) == "openai" else 3000)]
             caminho = os.path.join(PASTA, f"{job_id}-{n:03d}.mp3")
             with open(caminho, "wb") as mp3:
-                for i, parte in enumerate(partes, 1):
-                    narrar_trecho(parte, job["voz"], job["velocidade"], mp3)
+                for i, (v, parte) in enumerate(partes, 1):
+                    narrar_trecho(parte, v, job["velocidade"], mp3)
                     cap["progresso"] = round(100 * i / len(partes))
             cap.update(status="pronto", caminho=caminho)
         job["status"] = "pronto"
@@ -188,7 +193,7 @@ def texto_capitulo(aid, n):
     r = ANALISES.get(aid) or abort(404)
     if n >= len(r["caps"]):
         abort(404)
-    t = r["caps"][n][1]
+    t = r["caps"][n][1].replace(" ¶", "\n")
     return jsonify(texto=t[:1500], total=len(t))
 
 
@@ -216,7 +221,8 @@ def converter():
         idx = {int(i) for i in escolhidos.split(",") if i.strip().isdigit()}
         lista = [c for i, c in enumerate(lista) if i in idx] or lista
     JOBS[job_id] = {"titulo": r["titulo"], "status": "narrando", "voz": voz, "velocidade": velocidade,
-                    "capitulos": lista, "paginas": r["paginas"], "pron": ler_pron(request.form.get("pron"))}
+                    "capitulos": lista, "paginas": r["paginas"], "pron": ler_pron(request.form.get("pron")),
+                    "voz_dialogo": request.form.get("voz_dialogo") if request.form.get("voz_dialogo") in MOTOR else None}
     threading.Thread(target=trabalhar, args=(job_id,), daemon=True).start()
     return jsonify(id=job_id, **publico(JOBS[job_id]))
 
@@ -275,7 +281,7 @@ def testar():
     """Fala um texto curto (com as pronúncias aplicadas) para conferir como ficou."""
     voz = request.form.get("voz", VOZ_PADRAO)
     voz = voz if voz in MOTOR else VOZ_PADRAO
-    texto = pronunciar((request.form.get("texto") or "")[:300], ler_pron(request.form.get("pron")))
+    texto = sem_marcas(pronunciar((request.form.get("texto") or "")[:300], ler_pron(request.form.get("pron"))))
     if not texto.strip():
         return jsonify(erro="Escreva algo para testar."), 400
     chave = (voz, texto)

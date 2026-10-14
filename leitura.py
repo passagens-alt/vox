@@ -14,12 +14,64 @@ def palavras(t):
     return len(t.split())
 
 
-def limpar(t):
+def limpar(t, paragrafos=False):
+    """Junta as linhas num texto corrido. Marca com ¶ onde começa cada parágrafo
+    (uma linha curta terminada em ponto encerra o parágrafo; uma linha com travessão começa uma fala)."""
     t = re.sub(r"(\w)-\n(\w)", r"\1\2", t)          # palavras hifenizadas no fim da linha
     t = re.sub(r"\[\d{1,3}\]", "", t)                 # chamadas de nota [12]
     t = re.sub(r"https?://\S+", "link", t)
+    linhas = [l.strip() for l in t.split("\n")]
+    tam = sorted(len(l) for l in linhas if len(l) > 20)
+    mediana = tam[len(tam) // 2] if tam else 60
+    saida = []
+    for l in linhas:
+        if not l:
+            continue
+        if l[0] in "—–":
+            l = "¶" + l[0] + " " + l[1:].lstrip()
+        saida.append(l)
+        if paragrafos or (re.search(r"[.!?…:»”\"]$", l) and len(l) < 0.85 * mediana):
+            saida.append("¶")
+    t = " ".join(saida)
     t = re.sub(r"\s+", " ", t)
-    return t.strip()
+    t = re.sub(r"(¶\s*)+¶", "¶", t)
+    t = re.sub(r"\s*¶\s*", " ¶", t)
+    return t.strip(" ¶")
+
+
+def sem_marcas(t):
+    return t.replace(" ¶", " ").replace("¶", "")
+
+
+def segmentar(texto):
+    """Separa narração e falas. Devolve [(tipo, texto)], tipo 'n' (narrador) ou 'd' (diálogo).
+    Entende falas com travessão (— Oi — disse ela. — Tudo bem?) e falas entre aspas (“Oi”)."""
+    segs = []
+    def add(tipo, t):
+        t = t.strip()
+        if not re.search(r"\w", t):
+            if segs and t:
+                segs[-1] = (segs[-1][0], segs[-1][1] + " " + t)
+            return
+        if segs and segs[-1][0] == tipo:
+            segs[-1] = (tipo, segs[-1][1] + " " + t)
+        else:
+            segs.append((tipo, t))
+    for par in texto.split("¶"):
+        par = par.strip()
+        if not par:
+            continue
+        if par[0] in "—–":
+            partes = re.split(r"\s[—–]\s*", par[1:])
+            for k, parte in enumerate(partes):
+                add("d" if k % 2 == 0 else "n", parte)
+            continue
+        for k, parte in enumerate(re.split(r"(“[^”]{1,1200}”|\"[^\"]{1,1200}\"|«[^»]{1,1200}»)", par)):
+            if k % 2 == 1:
+                add("d", parte[1:-1])
+            else:
+                add("n", parte)
+    return segs
 
 
 # ---------------------------------------------------------------- limpeza de páginas (PDF/EPUB)
@@ -220,7 +272,7 @@ def ler(dados, nome, limpar_on=True):
                 pdf = doc.convert_to_pdf()  # para mostrar capa e páginas no navegador
     else:
         raise ValueError("formato não aceito")
-    caps = [(t, limpar(x), a, b) for t, x, a, b in caps]
+    caps = [(t, limpar(x, ext == ".docx"), a, b) for t, x, a, b in caps]
     caps = [c for c in caps if palavras(c[1]) > 3]
     if len(titulo) <= 2 or titulo.lower().startswith(("untitled", "microsoft word", "sem título")):
         titulo = re.sub(r"\.(pdf|epub|docx)$", "", nome, flags=re.I)
