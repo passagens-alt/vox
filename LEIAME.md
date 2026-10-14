@@ -1,12 +1,22 @@
-# VOX — seu PDF virando audiolivro
+# VOX — seu livro virando audiolivro
 
-Envie um PDF, escolha a voz e receba o audiolivro em MP3, **um arquivo por capítulo** (ou todos juntos num ZIP). Dá para ouvir direto no site, com tocador que passa sozinho para o próximo capítulo.
+Envie um PDF, EPUB ou Word (.docx), escolha a voz e receba o audiolivro em MP3, **um arquivo por capítulo** (ou todos juntos num ZIP). Dá para ouvir direto no site, com tocador que passa sozinho para o próximo capítulo.
+
+## O que o site faz
+
+- **Minha biblioteca**: cada audiolivro gerado fica guardado no próprio aparelho de quem usou (no navegador). Dá para ouvir de novo, até sem internet, mesmo que o servidor reinicie.
+- **Tocador completo**: velocidade de 0,75× a 2×, voltar/avançar 15 s, timer para dormir (15, 30, 45, 60 min ou fim do capítulo), continua de onde parou e funciona com os controles da tela de bloqueio do celular.
+- **Texto limpo**: tira números de página, cabeçalhos e rodapés repetidos, notas de rodapé e as chamadas de nota, para a narração não ler essas coisas (dá para desligar).
+- **Pronúncias**: lista "escreve assim → fala assim" para nomes e siglas, com botão para ouvir como fica. Fica salva no aparelho.
+- **Capa e páginas**: mostra a capa real do livro e a página que está sendo narrada.
 
 ## Como os capítulos são encontrados
 
 1. Pelo sumário interno do PDF (os marcadores que aparecem na lateral do leitor de PDF).
 2. Se não houver, pelos títulos no texto: "Capítulo 1", "Capítulo II", "Prólogo", "Epílogo", "Parte 1"...
 3. Se nada for encontrado, o livro é dividido a cada 10 páginas.
+
+No EPUB, os capítulos vêm do sumário do próprio livro. No Word, dos estilos de Título (Título 1, Título 2...).
 
 Antes de narrar, você vê a lista e pode desmarcar capítulos.
 

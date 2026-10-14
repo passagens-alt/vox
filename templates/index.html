@@ -18,7 +18,7 @@
   --cover:#1f4a43; --cover2:#163a34; --gold:#dcb35e; --gold-soft:#3d331b; --ok:#6cc79a; --bad:#e8857d;
   --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25); color-scheme:dark}}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--ui);font-size:15px;line-height:1.55;padding:0 16px 120px}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--ui);font-size:15px;line-height:1.55;padding:0 16px 170px}
 .wrap{max-width:1000px;margin:0 auto;display:flex;flex-direction:column;gap:28px;padding-block:24px 40px}
 button{font:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--gold);outline-offset:2px}
@@ -113,9 +113,60 @@ select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(-
 .msg{padding:12px 16px;border-radius:12px;background:var(--gold-soft)}
 .msg.err{color:var(--bad)}
 
+
+/* biblioteca */
+.lib-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.lib-head small{color:var(--muted)}
+.shelf{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:22px 18px}
+.bk{display:flex;flex-direction:column;gap:8px;min-width:0}
+.bk .cv{all:unset;cursor:pointer;position:relative;aspect-ratio:2/3;border-radius:3px 8px 8px 3px;overflow:hidden;background:linear-gradient(90deg,var(--cover2) 0 9%,var(--cover) 9%);box-shadow:0 10px 22px rgba(10,20,30,.22);display:flex;align-items:flex-end;padding:12px 10px 16px 18px;color:#f1e3bd;font-family:var(--display);font-size:.95rem;line-height:1.15;transition:transform .2s}
+.bk .cv:hover{transform:translateY(-3px)}
+.bk .cv:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+.bk .cv img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.bk .cv .bar{position:absolute;left:0;right:0;bottom:0;height:4px;background:rgba(0,0,0,.35)}
+.bk .cv .bar i{display:block;height:100%;background:var(--gold)}
+.bk .ti{font-weight:600;font-size:.9rem;line-height:1.3;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.bk .me{font-size:.78rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.bk .ops{display:flex;gap:6px;flex-wrap:wrap}
+.mini-btn{font-size:.78rem;border:1px solid var(--line);background:transparent;border-radius:999px;padding:4px 10px;cursor:pointer}
+.mini-btn:hover{border-color:var(--gold)}
+.mini-btn.danger{color:var(--bad);border-color:color-mix(in srgb,var(--bad) 40%,transparent)}
+@media (prefers-reduced-motion:reduce){.bk .cv{transition:none}}
+.resume{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+@media (max-width:620px){.resume{justify-content:center}}
+.ch{cursor:default}
+
+/* tocador: extras */
+.pin .opts{display:flex;gap:8px;align-items:center}
+.pin .opts select{padding:6px 8px;font-size:.82rem;border-radius:8px}
+.sleep-left{font-size:.75rem;color:var(--gold);font-variant-numeric:tabular-nums;min-width:3.5em}
+.sk.txt{width:auto;padding:0 6px;font-size:.78rem;font-weight:600;gap:2px;display:inline-flex;align-items:center}
+.sk.txt svg{width:18px;height:18px}
+/* etapa 1: limpeza, prévia e pronúncias */
+.opt{display:flex;align-items:flex-start;gap:10px;margin-top:16px;font-size:.9rem;color:var(--ink);cursor:pointer;text-align:left}
+.opt input{width:18px;height:18px;accent-color:var(--cover);margin-top:2px;flex:none}
+.opt small{display:block;color:var(--muted);font-size:.8rem}
+.clean{font-size:.82rem;color:var(--muted);margin-top:8px}
+.clean b{color:var(--ok);font-weight:600}
+.ver{all:unset;cursor:pointer;font-size:.78rem;color:var(--gold);font-weight:600;margin-left:8px}
+.ver:focus-visible{outline:2px solid var(--gold)}
+.prev{grid-column:2 / -1;font-size:.88rem;line-height:1.6;color:var(--muted);background:var(--bg);border-radius:10px;padding:12px 14px;max-height:220px;overflow:auto;white-space:pre-wrap}
+.pron{margin-top:26px;border-top:1px solid var(--line);padding-top:20px}
+.pron h3{font-family:var(--display);font-weight:400;font-size:1.1rem;margin:0 0 2px}
+.prows{display:flex;flex-direction:column;gap:8px;margin:12px 0}
+.prow{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr) auto auto;gap:8px;align-items:center}
+.prow input{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 10px;min-width:0;width:100%}
+.prow .arrow{color:var(--muted)}
+.prow .ib{width:34px;height:34px}
+.pdef{font-size:.8rem;color:var(--muted)}
+@media (max-width:520px){
+  .prow{grid-template-columns:minmax(0,1fr) auto auto;padding-bottom:8px;border-bottom:1px solid var(--line)}
+  .prow .arrow{display:none}
+  .prow .de{grid-area:1/1}.prow .para{grid-area:2/1}
+  .prow .ouvir{grid-area:1/2/3/3}.prow .rem{grid-area:1/3/3/4}}
 /* tocador */
 .player{position:fixed;left:0;right:0;bottom:0;padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));background:color-mix(in srgb,var(--card) 92%,transparent);backdrop-filter:blur(10px);border-top:1px solid var(--line)}
-.pin{max-width:1000px;margin:0 auto;display:grid;grid-template-columns:auto auto minmax(0,1fr);gap:16px;align-items:center}
+.pin{max-width:1000px;margin:0 auto;display:grid;grid-template-columns:auto auto minmax(0,1fr) auto;gap:16px;align-items:center}
 .ctrl{display:flex;gap:4px;align-items:center}
 .pl{all:unset;cursor:pointer;width:46px;height:46px;border-radius:50%;background:var(--ink);color:var(--bg);display:grid;place-items:center}
 .pl svg{width:20px;height:20px;fill:currentColor}
@@ -125,19 +176,32 @@ select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(-
 .pi .a{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pi input[type=range]{width:100%;accent-color:var(--gold)}
 .pi .tm{display:flex;justify-content:space-between;font-size:.75rem;color:var(--muted);font-variant-numeric:tabular-nums}
+@media (max-width:760px){
+  .pin{display:flex;flex-wrap:wrap;gap:8px 12px}
+  .pin .pi{order:-1;flex:1 1 100%}
+  .pin .thumb{display:none}
+  .pin .ctrl{flex:1;justify-content:center}
+  .pin .opts{flex:1 1 100%;justify-content:center}
+}
 </style>
 </head>
 <body>
 <div class="wrap">
   <div class="top"><div class="logo">VO<b>X</b></div><div class="tag">seu PDF virando audiolivro, capítulo por capítulo</div></div>
 
+  <section class="card" id="library" hidden>
+    <div class="lib-head"><h2>Minha biblioteca</h2><small id="libInfo"></small></div>
+    <div class="shelf" id="shelf"></div>
+  </section>
+
   <section class="card" id="stepUpload">
     <label class="drop" id="drop" for="pdf">
       <svg viewBox="0 0 24 24"><path d="M12 3a4 4 0 0 0-4 4v5a4 4 0 0 0 8 0V7a4 4 0 0 0-4-4zm7 9a7 7 0 0 1-6 6.93V22h-2v-3.07A7 7 0 0 1 5 12h2a5 5 0 0 0 10 0z"/></svg>
-      <strong>Envie o seu PDF</strong>
-      <span>Arraste aqui ou clique para escolher · até 80 MB</span>
+      <strong>Envie o seu livro</strong>
+      <span>PDF, EPUB ou Word (.docx) · arraste aqui ou clique · até 80 MB</span>
     </label>
-    <input type="file" id="pdf" accept=".pdf,application/pdf">
+    <input type="file" id="pdf" accept=".pdf,.epub,.docx,application/pdf,application/epub+zip,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+    <label class="opt" for="limpar"><input type="checkbox" id="limpar" checked><span>Limpar o texto<small>Tira números de página, cabeçalhos e rodapés repetidos e notas de rodapé, para a narração não ler essas coisas.</small></span></label>
     <p class="msg" id="upMsg" hidden></p>
   </section>
 
@@ -147,8 +211,10 @@ select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(-
       <div>
         <div class="eyebrow">Seu livro</div>
         <h1 id="bookT"></h1>
-        <div class="facts"><span><b id="nCaps">0</b> capítulos</span><span><b id="nPag">0</b> páginas</span><span>cerca de <b id="nDur">—</b> de áudio</span></div>
-        <button class="link" id="trocar">Trocar de PDF</button>
+        <div class="facts"><span><b id="nCaps">0</b> capítulos</span><span id="fPag"><b id="nPag">0</b> páginas</span><span>cerca de <b id="nDur">—</b> de áudio</span></div>
+        <div class="clean" id="cleanInfo" hidden></div>
+        <div class="resume" id="resume" hidden><button class="go" id="resumeBtn"></button></div>
+        <button class="link" id="trocar">← Voltar para a biblioteca</button>
       </div>
     </div>
   </section>
@@ -170,6 +236,13 @@ select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(-
       <label class="f" for="vel">Velocidade
         <select id="vel"><option value="-20">Mais devagar</option><option value="-10">Um pouco devagar</option><option value="0" selected>Normal</option><option value="10">Um pouco mais rápida</option><option value="25">Rápida</option></select>
       </label>
+    </div>
+    <div class="pron">
+      <h3>Pronúncias</h3>
+      <p class="sub" style="margin:0">Ensine como falar nomes, siglas e palavras difíceis. Fica salvo neste aparelho para os próximos livros.</p>
+      <div class="prows" id="prows"></div>
+      <button type="button" class="ghost" id="addPron">+ Adicionar palavra</button>
+      <p class="pdef">Já incluído: Sr., Sra., Dr., Dra., Prof., nº, Av., etc.</p>
     </div>
   </section>
 
@@ -197,13 +270,20 @@ select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(-
     <img class="thumb" id="thumb" alt="" hidden>
     <div class="ctrl">
       <button class="sk" id="pPrev" aria-label="Capítulo anterior"><svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg></button>
+      <button class="sk txt" id="pBack" aria-label="Voltar 15 segundos"><svg viewBox="0 0 24 24"><path d="M12 5V2L7 6l5 4V7a6 6 0 1 1-6 6H4a8 8 0 1 0 8-8z"/></svg>15</button>
       <button class="pl" id="pPlay" aria-label="Tocar"><svg viewBox="0 0 24 24" id="pIcon"><path d="M8 5v14l11-7z"/></svg></button>
+      <button class="sk txt" id="pFwd" aria-label="Avançar 15 segundos">15<svg viewBox="0 0 24 24"><path d="M12 5V2l5 4-5 4V7a6 6 0 1 0 6 6h2a8 8 0 1 1-8-8z"/></svg></button>
       <button class="sk" id="pNext" aria-label="Próximo capítulo"><svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg></button>
     </div>
     <div class="pi">
       <div class="a" id="pTitle"></div>
       <input type="range" id="seek" min="0" max="1000" value="0" aria-label="Posição">
       <div class="tm"><span id="tNow">0:00</span><span id="tEnd">0:00</span></div>
+    </div>
+    <div class="opts">
+      <select id="speed" aria-label="Velocidade"><option value="0.75">0,75×</option><option value="1" selected>1×</option><option value="1.25">1,25×</option><option value="1.5">1,5×</option><option value="1.75">1,75×</option><option value="2">2×</option></select>
+      <select id="sleep" aria-label="Timer para dormir"><option value="">☾ Timer</option><option value="15">15 min</option><option value="30">30 min</option><option value="45">45 min</option><option value="60">1 hora</option><option value="fim">Fim do capítulo</option></select>
+      <span class="sleep-left" id="sleepLeft"></span>
     </div>
   </div>
 </div>
@@ -214,13 +294,71 @@ select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(-
 <script>
 pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
 const $=id=>document.getElementById(id);
-let file=null, caps=[], job=null, poll=null, cur=-1;
 const PLAY='<path d="M8 5v14l11-7z"/>', PAUSE='<path d="M6 5h4v14H6zm8 0h4v14h-4z"/>', DL='<path d="M5 20h14v-2H5zm7-3 5-5h-3V4h-4v8H7z"/>';
-const fmt=s=>isFinite(s)?Math.floor(s/60)+":"+String(Math.floor(s%60)).padStart(2,"0"):"0:00";
-const fmtMin=m=>m<60?m+" min":Math.floor(m/60)+" h "+String(m%60).padStart(2,"0")+" min";
+const fmt=s=>isFinite(s)?(s>=3600?Math.floor(s/3600)+":"+String(Math.floor(s%3600/60)).padStart(2,"0"):Math.floor(s/60))+":"+String(Math.floor(s%60)).padStart(2,"0"):"0:00";
+const fmtMin=m=>m<60?Math.round(m)+" min":Math.floor(m/60)+" h "+String(Math.round(m%60)).padStart(2,"0")+" min";
+const ls={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 function msg(el,t,err){el.textContent=t;el.hidden=!t;el.classList.toggle("err",!!err)}
+function nomeArq(t){return t.normalize("NFKD").replace(/[̀-ͯ]/g,"").replace(/[^A-Za-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,60)||"capitulo"}
 
-/* envio */
+/* ---------------- banco no aparelho (IndexedDB) ---------------- */
+const DB=new Promise((res,rej)=>{const r=indexedDB.open("vox",1);
+  r.onupgradeneeded=()=>{const d=r.result; d.createObjectStore("livros",{keyPath:"id"}); d.createObjectStore("audios");};
+  r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error);});
+function req(st,mode,fn){return DB.then(d=>new Promise((res,rej)=>{const t=d.transaction(st,mode); const r=fn(t.objectStore(st));
+  t.oncomplete=()=>res(r&&"result" in r?r.result:undefined); t.onerror=()=>rej(t.error); t.onabort=()=>rej(t.error);}))}
+const idb={get:(st,k)=>req(st,"readonly",s=>s.get(k)), all:st=>req(st,"readonly",s=>s.getAll()),
+  put:(st,v,k)=>req(st,"readwrite",s=>k===undefined?s.put(v):s.put(v,k)), del:(st,k)=>req(st,"readwrite",s=>s.delete(k)),
+  delRange:(st,lo,hi)=>req(st,"readwrite",s=>s.delete(IDBKeyRange.bound(lo,hi)))};
+
+/* ---------------- estado ---------------- */
+let file=null, pdfBlob=null, analise=null, livro=null, server={}, serverGone=false, poll=null, cur=-1, salvando=new Set(), audioURL={}, coverURL=null;
+const posKey=id=>"pos:"+id;
+
+/* ---------------- biblioteca ---------------- */
+async function mostrarBiblioteca(){
+  let livros=[]; try{livros=(await idb.all("livros")).sort((a,b)=>b.criado-a.criado)}catch(e){}
+  $("library").hidden=!livros.length; const sh=$("shelf"); sh.innerHTML="";
+  livros.forEach(l=>{
+    const total=l.capitulos.reduce((a,c)=>a+c.minutos,0), p=ls.get(posKey(l.id),{cap:0,t:0});
+    const ouvido=l.capitulos.slice(0,p.cap).reduce((a,c)=>a+c.minutos,0)+p.t/60, pct=Math.min(100,Math.round(100*ouvido/Math.max(1,total)));
+    const el=document.createElement("div"); el.className="bk";
+    el.innerHTML=`<button class="cv" aria-label="Abrir"><span class="nm"></span><span class="bar"><i style="width:${pct}%"></i></span></button>
+      <div class="ti"></div><div class="me">${l.salvos.length} de ${l.capitulos.length} cap. · ${pct}% ouvido</div>
+      <div class="ops"><button class="mini-btn play">${pct>0?"Continuar":"Ouvir"}</button><button class="mini-btn danger del">Excluir</button></div>`;
+    el.querySelector(".nm").textContent=l.titulo; el.querySelector(".ti").textContent=l.titulo;
+    if(l.capa){const im=document.createElement("img"); im.alt=""; im.src=URL.createObjectURL(l.capa); el.querySelector(".cv").prepend(im)}
+    const abrir=()=>abrirLivro(l.id,true);
+    el.querySelector(".cv").onclick=()=>abrirLivro(l.id,false); el.querySelector(".play").onclick=abrir;
+    const del=el.querySelector(".del"); del.onclick=async()=>{
+      if(del.dataset.ok){await excluir(l.id); mostrarBiblioteca(); return}
+      del.dataset.ok=1; del.textContent="Confirmar exclusão"; setTimeout(()=>{if(del.isConnected){delete del.dataset.ok; del.textContent="Excluir"}},4000)};
+    sh.appendChild(el);});
+  try{const e=await navigator.storage.estimate(); $("libInfo").textContent=livros.length?`${livros.length} livro${livros.length>1?"s":""} · ${(e.usage/1048576).toFixed(0)} MB usados neste aparelho`:""}catch(e){}
+}
+async function excluir(id){await idb.delRange("audios",id+":",id+":￿"); await idb.del("livros",id); try{localStorage.removeItem(posKey(id))}catch(e){}}
+
+async function abrirLivro(id,tocarJa){
+  const l=await idb.get("livros",id); if(!l) return;
+  livro=l; serverGone=false; server={}; audioURL={}; cur=-1;
+  ["library","stepUpload","stepVoice"].forEach(k=>$(k).hidden=true); ["stepBook","stepCaps"].forEach(k=>$(k).hidden=false);
+  $("gerar").hidden=true; mostrarLivro();
+  if(l.pdf) abrirPdf(l.pdf); else if(l.capa) usarCapa(l.capa);
+  renderCaps();
+  if(l.salvos.length<l.capitulos.length&&l.job){checar(); clearInterval(poll); poll=setInterval(checar,2500)}
+  const p=ls.get(posKey(l.id),{cap:0,t:0});
+  $("resume").hidden=false; $("resumeBtn").textContent=(p.cap||p.t)?`▶ Continuar · cap. ${p.cap+1}, ${fmt(p.t)}`:"▶ Começar a ouvir";
+  $("resumeBtn").onclick=()=>tocar(p.cap,p.t);
+  if(tocarJa) tocar(p.cap,p.t);
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function mostrarLivro(){
+  $("bookT").textContent=livro.titulo; $("coverT").textContent=livro.titulo;
+  $("nCaps").textContent=livro.capitulos.length; $("nPag").textContent=livro.paginas||"—"; $("fPag").hidden=!livro.paginas;
+  $("nDur").textContent=fmtMin(livro.capitulos.reduce((a,c)=>a+c.minutos,0));
+}
+
+/* ---------------- envio ---------------- */
 $("pdf").onchange=e=>escolher(e.target.files[0]);
 const drop=$("drop");
 ["dragenter","dragover"].forEach(t=>drop.addEventListener(t,e=>{e.preventDefault();drop.classList.add("over")}));
@@ -228,40 +366,59 @@ const drop=$("drop");
 drop.addEventListener("drop",e=>escolher(e.dataTransfer.files[0]));
 $("trocar").onclick=()=>location.reload();
 
+let analiseCaps=[], analiseInfo={};
 async function escolher(f){
-  if(!f) return; file=f; msg($("upMsg"),"Lendo o PDF e procurando os capítulos…");
-  const fd=new FormData(); fd.append("pdf",f);
-  const r=await fetch("/analisar",{method:"POST",body:fd}); const j=await r.json();
+  if(!f) return; file=f;
+  if(!/\.(pdf|epub|docx)$/i.test(f.name)){msg($("upMsg"),"Esse formato não é aceito. Envie um PDF, EPUB ou Word (.docx).",true);return}
+  msg($("upMsg"),`Enviando e lendo o livro (${(f.size/1048576).toFixed(1)} MB)… livros grandes podem levar 1 a 2 minutos no plano grátis.`);
+  const fd=new FormData(); fd.append("pdf",f); fd.append("limpar",$("limpar").checked?"1":"0");
+  let r,j; try{r=await fetch("/analisar",{method:"POST",body:fd}); j=await r.json();}
+  catch(e){msg($("upMsg"),"O servidor não respondeu. Ele pode estar acordando ou ter ficado sem memória com este livro. Espere um minuto e tente de novo; se repetir, tente um arquivo menor.",true);return}
   if(!r.ok){msg($("upMsg"),j.erro,true);return}
-  if(!j.capitulos.length){msg($("upMsg"),"Este PDF não tem texto selecionável (provavelmente é escaneado). Passe por OCR antes.",true);return}
-  caps=j.capitulos; abrirPdf(f);
-  $("stepUpload").hidden=true; ["stepBook","stepVoice","stepCaps"].forEach(id=>$(id).hidden=false);
-  $("bookT").textContent=j.titulo; $("coverT").textContent=j.titulo;
-  $("nCaps").textContent=caps.length; $("nPag").textContent=j.paginas;
-  $("nDur").textContent=fmtMin(caps.reduce((a,c)=>a+c.minutos,0));
+  if(!j.capitulos.length){msg($("upMsg"),"Este arquivo não tem texto selecionável (provavelmente é escaneado). Passe por OCR antes.",true);return}
+  analise=j.analise; analiseCaps=j.capitulos; analiseInfo={titulo:j.titulo,paginas:j.paginas};
+  livro={titulo:j.titulo,paginas:j.paginas,capitulos:j.capitulos,salvos:[]};
+  pdfBlob=null;
+  if(/\.pdf$/i.test(f.name)) pdfBlob=f;
+  else if(j.tem_pdf){try{pdfBlob=await (await fetch("/pdf/"+j.analise)).blob()}catch(e){}}
+  if(pdfBlob) abrirPdf(pdfBlob);
+  ["library","stepUpload"].forEach(k=>$(k).hidden=true); ["stepBook","stepVoice","stepCaps"].forEach(k=>$(k).hidden=false);
+  $("trocar").textContent="← Escolher outro livro"; mostrarLivro();
+  const rem=Object.entries(j.removidos||{}).filter(([k,v])=>v);
+  $("cleanInfo").hidden=!rem.length;
+  if(rem.length) $("cleanInfo").innerHTML="<b>✓ Texto limpo:</b> "+rem.map(([k,v])=>`${v} ${k}`).join(" · ").replace(/[<>]/g,"");
   const ol=$("chs"); ol.innerHTML="";
-  caps.forEach((c,i)=>{const li=document.createElement("li"); li.className="ch"; li.id="c"+i;
-    li.innerHTML=`<input type="checkbox" class="chk" checked aria-label="Narrar este capítulo"><span class="num">${i+1}</span><div class="t"><div></div><small>${c.minutos} min</small></div><span class="pill">na fila</span>`;
-    li.querySelector(".t div").textContent=c.titulo; li.querySelector(".pill").hidden=true; ol.appendChild(li);});
+  j.capitulos.forEach((c,i)=>{const li=document.createElement("li"); li.className="ch"; li.id="c"+i;
+    li.innerHTML=`<input type="checkbox" class="chk" checked aria-label="Narrar este capítulo"><span class="num">${i+1}</span><div class="t"><div></div><small>${c.minutos} min<button type="button" class="ver">ver texto</button></small></div><span></span>`;
+    li.querySelector(".t div").textContent=c.titulo; li.onclick=e=>{if(e.target.type!=="checkbox"&&!e.target.closest(".ver,.prev")) showPage(c.pag_ini,"início do capítulo")};
+    li.querySelector(".ver").onclick=()=>verTexto(li,i); ol.appendChild(li);});
+}
+async function verTexto(li,i){
+  const old=li.querySelector(".prev"); if(old){old.remove(); li.querySelector(".ver").textContent="ver texto"; return}
+  const d=document.createElement("div"); d.className="prev"; d.textContent="Carregando…"; li.appendChild(d); li.querySelector(".ver").textContent="fechar";
+  try{const r=await fetch(`/texto/${analise}/${i}`); const j=await r.json(); d.textContent=j.texto+(j.total>j.texto.length?" …":"")}
+  catch(e){d.textContent="Não consegui carregar o texto agora."}
 }
 
-/* páginas do PDF (desenhadas no navegador) */
+/* ---------------- páginas do PDF ---------------- */
 let pdfDoc=null, shownPage=-1; const cache=new Map();
-async function renderPage(p,w){const pg=await pdfDoc.getPage(p+1), b=pg.getViewport({scale:1}), vp=pg.getViewport({scale:w/b.width});
+async function renderBlob(p,w){const pg=await pdfDoc.getPage(p+1), b=pg.getViewport({scale:1}), vp=pg.getViewport({scale:w/b.width});
   const cv=document.createElement("canvas"); cv.width=Math.round(vp.width); cv.height=Math.round(vp.height);
   await pg.render({canvasContext:cv.getContext("2d"),viewport:vp,background:"#fff"}).promise;
-  return await new Promise(r=>cv.toBlob(x=>r(URL.createObjectURL(x)),"image/jpeg",.86));}
-function pageURL(p){if(!cache.has(p)){cache.set(p,renderPage(p,600)); if(cache.size>30){const [k,v]=cache.entries().next().value; cache.delete(k); v.then(URL.revokeObjectURL)}} return cache.get(p)}
+  return await new Promise(r=>cv.toBlob(r,"image/jpeg",.86));}
+function pageURL(p){if(!cache.has(p)){cache.set(p,renderBlob(p,600).then(b=>URL.createObjectURL(b))); if(cache.size>30){const [k,v]=cache.entries().next().value; cache.delete(k); v.then(URL.revokeObjectURL)}} return cache.get(p)}
+let capaBlob=null;
+function usarCapa(blob){capaBlob=blob; coverURL=URL.createObjectURL(blob); $("coverImg").src=$("thumb").src=coverURL; $("coverImg").hidden=false; $("cover").classList.add("real")}
 async function abrirPdf(f){try{pdfDoc=await pdfjsLib.getDocument({data:await f.arrayBuffer()}).promise;
-  const url=await renderPage(0,420); $("coverImg").src=$("thumb").src=url; $("coverImg").hidden=false; $("cover").classList.add("real");
+  usarCapa(await renderBlob(0,420));
   $("grid").classList.remove("nopv"); $("pv").hidden=false; showPage(0,"capa");}catch(e){pdfDoc=null}}
-async function showPage(p,label){if(!pdfDoc) return; p=Math.max(0,Math.min(pdfDoc.numPages-1,p));
+async function showPage(p,label){if(!pdfDoc||p==null) return; p=Math.max(0,Math.min(pdfDoc.numPages-1,p));
   $("pvLive").textContent=label||"lendo agora"; if(p===shownPage) return; shownPage=p;
   $("pvNum").textContent=`página ${p+1} de ${pdfDoc.numPages}`; const img=$("pvImg"); img.classList.add("fade");
   const url=await pageURL(p); if(shownPage!==p) return; img.src=url; img.onload=()=>img.classList.remove("fade");
   if(p+1<pdfDoc.numPages) pageURL(p+1);}
 
-/* amostras */
+/* ---------------- amostras ---------------- */
 document.querySelectorAll(".sample").forEach(b=>b.onclick=e=>{e.preventDefault();const a=$("amostra");
   const was=b.classList.contains("on"); document.querySelectorAll(".sample").forEach(x=>{x.classList.remove("on");x.innerHTML='<svg viewBox="0 0 24 24">'+PLAY+'</svg>'});
   a.pause(); if(was) return;
@@ -269,63 +426,177 @@ document.querySelectorAll(".sample").forEach(b=>b.onclick=e=>{e.preventDefault()
   a.src="/amostra/"+encodeURIComponent(b.dataset.voz); a.play().catch(()=>{});
   a.onended=a.onerror=()=>{b.classList.remove("on");b.innerHTML='<svg viewBox="0 0 24 24">'+PLAY+'</svg>'}});
 
-/* gerar */
+/* ---------------- pronúncias ---------------- */
+function prons(){return [...document.querySelectorAll(".prow")].map(r=>{const [a,b]=r.querySelectorAll("input"); return [a.value.trim(),b.value.trim()]}).filter(([a,b])=>a&&b)}
+function guardarProns(){ls.set("pron",prons())}
+let pronN=0;
+function linhaPron(de="",para=""){
+  const n=++pronN, r=document.createElement("div"); r.className="prow";
+  r.innerHTML=`<input id="pd${n}" class="de" placeholder="Escreve assim (ex.: ONU)" aria-label="Como está escrito"><span class="arrow">→</span><input id="pp${n}" class="para" placeholder="Fala assim (ex.: ó ene u)" aria-label="Como deve ser falado">
+    <button type="button" class="ib ouvir" aria-label="Ouvir como fica"><svg viewBox="0 0 24 24">${PLAY}</svg></button><button type="button" class="ib rem" aria-label="Remover">✕</button>`;
+  const [a,b]=r.querySelectorAll("input"); a.value=de; b.value=para;
+  a.oninput=b.oninput=guardarProns;
+  const [ouvir,rem]=r.querySelectorAll("button");
+  rem.onclick=()=>{r.remove();guardarProns()};
+  ouvir.onclick=async()=>{const t=b.value.trim()||a.value.trim(); if(!t) return;
+    const fd=new FormData(); fd.append("voz",document.querySelector("input[name=voz]:checked").value); fd.append("texto",a.value.trim()||t); fd.append("pron",JSON.stringify(prons()));
+    ouvir.setAttribute("aria-disabled","true");
+    try{const res=await fetch("/testar",{method:"POST",body:fd}); if(!res.ok) throw 0; const am=$("amostra"); am.src=URL.createObjectURL(await res.blob()); am.play().catch(()=>{})}
+    catch(e){msg($("genMsg"),"Não consegui gerar o teste de voz agora. Tente de novo em instantes.",true)}
+    ouvir.removeAttribute("aria-disabled")};
+  $("prows").appendChild(r); return r;
+}
+$("addPron").onclick=()=>linhaPron().querySelector("input").focus();
+(ls.get("pron",[])||[]).forEach(([a,b])=>linhaPron(a,b));
+if(!$("prows").children.length) linhaPron();
+
+/* ---------------- gerar ---------------- */
 $("gerar").onclick=async()=>{
   const marcados=[...document.querySelectorAll(".ch .chk")].map((c,i)=>c.checked?i:null).filter(i=>i!==null);
   if(!marcados.length){msg($("genMsg"),"Marque pelo menos um capítulo.",true);return}
   $("gerar").disabled=true; msg($("genMsg"),"Enviando…");
-  const fd=new FormData(); fd.append("pdf",file); fd.append("voz",document.querySelector("input[name=voz]:checked").value);
-  fd.append("velocidade",$("vel").value); fd.append("capitulos",marcados.join(","));
-  const r=await fetch("/converter",{method:"POST",body:fd}); const j=await r.json();
+  const envio=comPdf=>{const fd=new FormData(); if(comPdf) fd.append("pdf",file); else fd.append("analise",analise||"");
+    fd.append("voz",document.querySelector("input[name=voz]:checked").value);
+    fd.append("velocidade",$("vel").value); fd.append("capitulos",marcados.join(",")); fd.append("pron",JSON.stringify(prons()));
+    fd.append("limpar",$("limpar").checked?"1":"0");
+    return fetch("/converter",{method:"POST",body:fd});};
+  let r,j; try{r=await envio(false); if(r.status===400){r=await envio(true)} j=await r.json();}
+  catch(e){msg($("genMsg"),"O servidor não respondeu. Espere um minuto e tente de novo.",true);$("gerar").disabled=false;return}
   if(!r.ok){msg($("genMsg"),j.erro,true);$("gerar").disabled=false;return}
-  job=j.id; $("stepVoice").hidden=true; $("gerar").hidden=true;
-  $("capsSub").textContent="Cada capítulo fica disponível assim que termina.";
-  const ol=$("chs"); ol.innerHTML="";
-  j.capitulos.forEach((c,i)=>{const li=document.createElement("li"); li.className="ch"; li.id="c"+i;
-    li.innerHTML=`<span></span><span class="num">${i+1}</span><div class="t"><div></div><small></small><div class="pb"><i></i></div></div>
-      <div class="acts"><span class="pill">na fila</span><button class="ib play" aria-label="Ouvir" aria-disabled="true"><svg viewBox="0 0 24 24">${PLAY}</svg></button>
-      <a class="ib dl" aria-label="Baixar MP3" aria-disabled="true"><svg viewBox="0 0 24 24">${DL}</svg></a></div>`;
-    li.querySelector(".t div").textContent=c.titulo;
-    li.querySelector(".play").onclick=()=>tocar(i); ol.appendChild(li);});
-  caps=j.capitulos; atualizar(j); poll=setInterval(checar,2000);
+  livro={id:j.id,job:j.id,titulo:j.titulo,paginas:analiseInfo.paginas,criado:Date.now(),salvos:[],
+    capitulos:j.capitulos.map(c=>({titulo:c.titulo,minutos:c.minutos,pag_ini:c.pag_ini,pag_fim:c.pag_fim})),
+    capa:capaBlob||null,pdf:pdfBlob};
+  try{await idb.put("livros",livro); navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}
+  catch(e){livro.pdf=null; try{await idb.put("livros",livro)}catch(e2){}}
+  $("stepVoice").hidden=true; $("gerar").hidden=true; $("trocar").textContent="← Voltar para a biblioteca";
+  server=j; renderCaps(); clearInterval(poll); poll=setInterval(checar,2500);
 };
-async function checar(){const r=await fetch("/status/"+job); if(!r.ok) return; const j=await r.json(); atualizar(j);
-  if(j.status!=="narrando") clearInterval(poll);}
-function atualizar(j){
-  caps=j.capitulos; let prontos=0;
-  j.capitulos.forEach((c,i)=>{const li=$("c"+i); if(!li) return;
-    const pill=li.querySelector(".pill"), ok=c.status==="pronto"; if(ok) prontos++;
-    pill.textContent=ok?"pronto":c.status==="narrando"?`narrando ${c.progresso}%`:"na fila";
-    pill.className="pill"+(ok?" ok":c.status==="narrando"?" run":"");
-    li.querySelector("small").textContent=`${c.minutos} min`;
-    li.querySelector(".pb i").style.width=(ok?100:c.progresso)+"%"; li.querySelector(".pb").hidden=ok;
-    li.querySelector(".play").setAttribute("aria-disabled",!ok);
-    const dl=li.querySelector(".dl"); dl.setAttribute("aria-disabled",!ok); if(ok) dl.href=`/audio/${job}/${i}?baixar=1`;});
-  if(prontos){$("zip").hidden=false; $("zip").href="/zip/"+job; $("zip").textContent=prontos===j.capitulos.length?"Baixar todos (ZIP)":`Baixar prontos (${prontos})`}
-  if(j.status==="erro") msg($("genMsg"),"A narração parou: "+j.erro,true);
-  else if(j.status==="pronto") msg($("genMsg"),"Audiolivro pronto! Ouça aqui ou baixe os MP3.");
-  else msg($("genMsg"),`Narrando… ${prontos} de ${j.capitulos.length} capítulos prontos. Pode deixar esta página aberta.`);
+
+/* ---------------- capítulos: estado e lista ---------------- */
+async function checar(){
+  if(!livro||!livro.job) return;
+  let r; try{r=await fetch("/status/"+livro.job)}catch(e){return}
+  if(r.status===404){serverGone=true; clearInterval(poll); renderCaps(); return}
+  if(!r.ok) return; server=await r.json();
+  server.capitulos.forEach((c,i)=>{if(c.status==="pronto"&&!livro.salvos.includes(i)&&!salvando.has(i)){salvando.add(i); fila=fila.then(()=>salvar(i))}});
+  if(server.status!=="narrando"&&livro.salvos.length+salvando.size>=livro.capitulos.length) clearInterval(poll);
+  renderCaps();
+}
+let fila=Promise.resolve();
+async function salvar(i){  // um capítulo por vez; só conta como salvo depois de gravado
+  const alvo=livro;
+  try{const r=await fetch(`/audio/${alvo.job}/${i}`); if(!r.ok) throw 0; const b=await r.blob();
+    await idb.put("audios",b,`${alvo.id}:${i}`);
+    const salvos=alvo.salvos.includes(i)?alvo.salvos:[...alvo.salvos,i];
+    await idb.put("livros",{...alvo,salvos}); alvo.salvos=salvos;
+  }catch(e){}
+  salvando.delete(i); if(livro===alvo) renderCaps();
+}
+function estado(i){
+  if(livro.salvos.includes(i)) return {ok:true,txt:"salvo",cls:"ok"};
+  const c=server.capitulos&&server.capitulos[i];
+  if(salvando.has(i)) return {ok:true,txt:"salvando…",cls:"run"};
+  if(c&&c.status==="pronto") return {ok:true,txt:"pronto",cls:"ok"};
+  if(c&&c.status==="narrando") return {ok:false,txt:`narrando ${c.progresso}%`,cls:"run",prog:c.progresso};
+  if(serverGone) return {ok:false,txt:"não gerado",cls:""};
+  return {ok:false,txt:"na fila",cls:""};
+}
+function renderCaps(){
+  if(!livro||!livro.id) return;
+  const ol=$("chs");
+  if(ol.dataset.livro!==livro.id){ol.dataset.livro=livro.id; ol.innerHTML="";
+    livro.capitulos.forEach((c,i)=>{const li=document.createElement("li"); li.className="ch"; li.id="c"+i;
+      li.innerHTML=`<span></span><span class="num">${i+1}</span><div class="t"><div></div><small>${c.minutos} min</small><div class="pb"><i></i></div></div>
+        <div class="acts"><span class="pill"></span><button class="ib play" aria-label="Ouvir"><svg viewBox="0 0 24 24">${PLAY}</svg></button>
+        <a class="ib dl" aria-label="Baixar MP3"><svg viewBox="0 0 24 24">${DL}</svg></a></div>`;
+      li.querySelector(".t div").textContent=c.titulo;
+      li.querySelector(".play").onclick=()=>tocar(i);
+      li.querySelector(".dl").onclick=e=>baixar(e,i);
+      ol.appendChild(li);});
+    icons();}
+  let ok=0;
+  livro.capitulos.forEach((c,i)=>{const li=$("c"+i), s=estado(i); if(s.ok) ok++;
+    const pill=li.querySelector(".pill"); pill.textContent=s.txt; pill.className="pill "+s.cls;
+    li.querySelector(".pb").hidden=s.prog==null; li.querySelector(".pb i").style.width=(s.prog||0)+"%";
+    li.querySelector(".play").setAttribute("aria-disabled",!s.ok);
+    li.querySelector(".dl").setAttribute("aria-disabled",!s.ok);});
+  const salvos=livro.salvos.length, n=livro.capitulos.length;
+  $("zip").hidden=serverGone||!(server.capitulos&&server.capitulos.some(c=>c.status==="pronto"));
+  if(!$("zip").hidden) $("zip").href="/zip/"+livro.job;
+  $("capsSub").textContent="Cada capítulo fica salvo neste aparelho assim que termina.";
+  if(server.status==="erro") msg($("genMsg"),"A narração parou: "+server.erro,true);
+  else if(salvos===n) msg($("genMsg"),"Audiolivro completo e salvo neste aparelho. Ele fica na sua biblioteca, mesmo sem internet.");
+  else if(serverGone) msg($("genMsg"),`${salvos} de ${n} capítulos salvos. Os outros não foram gerados (o servidor reiniciou); envie o PDF de novo para gerar o resto.`,true);
+  else msg($("genMsg"),`Narrando… ${ok} de ${n} capítulos prontos (${salvos} já salvos neste aparelho). Deixe esta página aberta até terminar.`);
+}
+async function fonte(i){
+  if(audioURL[i]) return audioURL[i];
+  if(livro.salvos.includes(i)){const b=await idb.get("audios",`${livro.id}:${i}`); if(b) return audioURL[i]=URL.createObjectURL(b)}
+  return `/audio/${livro.job}/${i}`;
+}
+async function baixar(e,i){
+  e.preventDefault(); if(!estado(i).ok) return;
+  const a=document.createElement("a"); a.href=await fonte(i); a.download=`${String(i+1).padStart(2,"0")}-${nomeArq(livro.capitulos[i].titulo)}.mp3`;
+  if(a.href.includes("/audio/")) a.href+="?baixar=1";
+  document.body.appendChild(a); a.click(); a.remove();
 }
 
-/* tocador */
+/* ---------------- tocador ---------------- */
 const au=$("audio");
-function tocar(i){if(!caps[i]||caps[i].status!=="pronto") return;
-  if(cur===i){au.paused?au.play():au.pause();return}
-  cur=i; au.src=`/audio/${job}/${i}`; au.play().catch(()=>{}); $("player").hidden=false; $("thumb").hidden=!pdfDoc;
-  showPage(caps[i].pag_ini);
-  $("pTitle").textContent=`${i+1}. ${caps[i].titulo}`;
-  document.querySelectorAll(".ch").forEach((li,k)=>li.classList.toggle("playing",k===i));}
+let speed=ls.get("speed",1); $("speed").value=String(speed);
+async function tocar(i,t){
+  if(!livro||!livro.capitulos[i]||!estado(i).ok) return;
+  if(cur===i&&t==null){au.paused?au.play():au.pause();return}
+  cur=i; au.src=await fonte(i); au.playbackRate=speed;
+  if(t){au.addEventListener("loadedmetadata",()=>{au.currentTime=Math.min(t,Math.max(0,au.duration-1))},{once:true})}
+  au.play().catch(()=>{}); $("player").hidden=false; $("thumb").hidden=!coverURL;
+  showPage(livro.capitulos[i].pag_ini);
+  $("pTitle").textContent=`${i+1}. ${livro.capitulos[i].titulo}`;
+  document.querySelectorAll(".ch").forEach((li,k)=>li.classList.toggle("playing",k===i));
+  if("mediaSession" in navigator){try{navigator.mediaSession.metadata=new MediaMetadata({title:livro.capitulos[i].titulo,artist:livro.titulo,album:"VOX",artwork:coverURL?[{src:coverURL,sizes:"420x630",type:"image/jpeg"}]:[]})}catch(e){}}
+}
 function icons(){const p=!au.paused; $("pIcon").innerHTML=p?PAUSE:PLAY;
   document.querySelectorAll(".ch .play").forEach((b,k)=>b.querySelector("svg").innerHTML=(p&&k===cur)?PAUSE:PLAY);}
-au.onplay=au.onpause=icons;
+let lastSave=0;
+function guardarPos(){if(livro&&livro.id&&cur>=0) ls.set(posKey(livro.id),{cap:cur,t:Math.floor(au.currentTime||0)})}
+au.onplay=icons; au.onpause=()=>{icons();guardarPos()};
 au.ontimeupdate=()=>{$("tNow").textContent=fmt(au.currentTime);$("tEnd").textContent=fmt(au.duration); if(!au.duration) return;
   const f=au.currentTime/au.duration; $("seek").value=1000*f;
-  const c=caps[cur]; if(c&&c.pag_ini!=null){const n=c.pag_fim-c.pag_ini+1; showPage(c.pag_ini+Math.min(n-1,Math.floor(f*n)))}};
-au.onended=()=>{if(caps[cur+1]&&caps[cur+1].status==="pronto") tocar(cur+1); else icons()};
+  if(Date.now()-lastSave>4000){lastSave=Date.now();guardarPos()}
+  const c=livro&&livro.capitulos[cur]; if(c&&c.pag_ini!=null){const n=c.pag_fim-c.pag_ini+1; showPage(c.pag_ini+Math.min(n-1,Math.floor(f*n)))}};
+au.onended=()=>{
+  if(sleepMode==="fim"){pararTimer(); ls.set(posKey(livro.id),{cap:Math.min(cur+1,livro.capitulos.length-1),t:0}); icons(); return}
+  if(livro.capitulos[cur+1]&&estado(cur+1).ok) tocar(cur+1,0); else {icons(); guardarPos()}};
 $("seek").oninput=e=>{if(au.duration) au.currentTime=e.target.value/1000*au.duration};
+const pular=s=>{if(au.duration) au.currentTime=Math.max(0,Math.min(au.duration-0.5,au.currentTime+s))};
 $("pPlay").onclick=()=>au.paused?au.play():au.pause();
-$("pPrev").onclick=()=>cur>0&&tocar(cur-1);
-$("pNext").onclick=()=>tocar(cur+1);
+$("pPrev").onclick=()=>{if(au.currentTime>5) au.currentTime=0; else if(cur>0) tocar(cur-1,0)};
+$("pNext").onclick=()=>tocar(cur+1,0);
+$("pBack").onclick=()=>pular(-15); $("pFwd").onclick=()=>pular(15);
+$("speed").onchange=e=>{speed=parseFloat(e.target.value); au.playbackRate=speed; ls.set("speed",speed)};
+if("mediaSession" in navigator){const ms=navigator.mediaSession; try{
+  ms.setActionHandler("play",()=>au.play()); ms.setActionHandler("pause",()=>au.pause());
+  ms.setActionHandler("seekbackward",()=>pular(-15)); ms.setActionHandler("seekforward",()=>pular(15));
+  ms.setActionHandler("previoustrack",()=>cur>0&&tocar(cur-1,0)); ms.setActionHandler("nexttrack",()=>tocar(cur+1,0));}catch(e){}}
+
+/* timer para dormir */
+let sleepMode="", sleepEnd=0;
+function pararTimer(){sleepMode="";sleepEnd=0;au.volume=1;$("sleep").value="";$("sleepLeft").textContent=""}
+$("sleep").onchange=e=>{const v=e.target.value; sleepMode=v; sleepEnd=v&&v!=="fim"?Date.now()+parseInt(v)*60000:0;
+  $("sleepLeft").textContent=v==="fim"?"fim do cap.":""; if(!v) pararTimer();};
+setInterval(()=>{if(!sleepEnd) return; const left=(sleepEnd-Date.now())/1000;
+  if(left<=0){au.pause(); pararTimer(); return}
+  if(left<20) au.volume=Math.max(0.15,left/20); else au.volume=1;
+  $("sleepLeft").textContent="☾ "+fmt(left);},1000);
+$("sleep").addEventListener("change",()=>{au.volume=1});
+
+document.addEventListener("keydown",e=>{if(e.target.closest("input,select,textarea")||$("player").hidden) return;
+  if(e.code==="Space"&&!e.target.closest("button,a")){e.preventDefault();au.paused?au.play():au.pause()}
+  if(e.key==="ArrowLeft") pular(-15); if(e.key==="ArrowRight") pular(15);});
+addEventListener("pagehide",guardarPos);
+
+mostrarBiblioteca();
+
 </script>
 </body>
 </html>

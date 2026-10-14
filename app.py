@@ -1,4 +1,4 @@
-"""VOX — envie um PDF e receba o audiolivro em MP3, um arquivo por capítulo.
+"""VOX — envie um PDF, EPUB ou Word e receba o audiolivro em MP3, um arquivo por capítulo.
 
 Vozes gratuitas: vozes neurais do Microsoft Edge (edge-tts), sem chave.
 Vozes premium (opcional): defina OPENAI_API_KEY e/ou ELEVENLABS_API_KEY no ambiente.
@@ -8,7 +8,8 @@ import asyncio, io, json, os, re, tempfile, threading, unicodedata, urllib.reque
 
 import edge_tts
 from flask import Flask, abort, jsonify, render_template, request, send_file
-from pypdf import PdfReader
+import leitura
+from leitura import palavras, pronunciar
 
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 80 * 1024 * 1024
@@ -74,92 +75,7 @@ def narrar_trecho(texto, voz, velocidade, arquivo):
             asyncio.run(_edge(texto, VOZ_PADRAO, velocidade, arquivo))  # voz indisponível: usa a Francisca
 
 
-# ---------------------------------------------------------------- texto e capítulos
-CAB = re.compile(r"^\s*(cap[íi]tulo|chapter|parte|livro|pr[óo]logo|ep[íi]logo|pref[áa]cio|introdu[çc][ãa]o)\b[\s.:—–-]*([0-9ivxlcdm]+|[a-zà-ú]+)?.{0,70}$", re.I)
-
-
-def limpar(t):
-    t = re.sub(r"(\w)-\n(\w)", r"\1\2", t)
-    t = re.sub(r"\s+", " ", t)
-    return t.strip()
-
-
-def palavras(t):
-    return len(t.split())
-
-
-def caps_sumario(leitor, paginas):
-    try:
-        itens = [i for i in leitor.outline if not isinstance(i, list)]
-        marcas = sorted({(leitor.get_destination_page_number(i), (i.title or "").strip()) for i in itens})
-    except Exception:
-        return None
-    unicas = []
-    for pg, titulo in marcas:
-        if not unicas or unicas[-1][0] != pg:
-            unicas.append((pg, titulo or "Capítulo"))
-    if len(unicas) < 2:
-        return None
-    caps = []
-    if unicas[0][0] > 0:
-        pre = "\n".join(paginas[:unicas[0][0]])
-        if palavras(pre) > 40:
-            caps.append(("Início", pre, 0, unicas[0][0] - 1))
-    for k, (pg, titulo) in enumerate(unicas):
-        fim = unicas[k + 1][0] if k + 1 < len(unicas) else len(paginas)
-        caps.append((titulo, "\n".join(paginas[pg:fim]), pg, max(pg, fim - 1)))
-    return caps
-
-
-def caps_titulos(paginas):
-    linhas, pag = [], []
-    for n, p in enumerate(paginas):
-        for l in p.split("\n"):
-            linhas.append(l)
-            pag.append(n)
-    achados = {}
-    for i, l in enumerate(linhas):
-        t = l.strip()
-        if not 3 <= len(t) <= 90 or re.search(r"\.{3,}", t):
-            continue
-        m = CAB.match(t)
-        if m:
-            chave = (m.group(1) + " " + (m.group(2) or "")).lower()
-            achados[chave] = (i, t)  # a última ocorrência vence (as primeiras costumam ser o sumário)
-    marcas = sorted(achados.values())
-    if len(marcas) < 2:
-        return None
-    caps = []
-    pre = "\n".join(linhas[:marcas[0][0]])
-    if palavras(pre) > 40:
-        caps.append(("Início", pre, 0, pag[marcas[0][0]]))
-    for k, (i, titulo) in enumerate(marcas):
-        inicio = i + 1
-        seg = linhas[i + 1].strip() if i + 1 < len(linhas) else ""
-        if re.match(r"^(cap[íi]tulo|chapter|parte)\s+\S+$", titulo, re.I) and seg and len(seg) < 70 and not re.search(r"[.!?]$", seg):
-            titulo += " — " + seg
-            inicio += 1
-        fim = marcas[k + 1][0] if k + 1 < len(marcas) else len(linhas)
-        caps.append((titulo, "\n".join(linhas[inicio:fim]), pag[i], pag[max(i, fim - 1)]))
-    return caps
-
-
-def capitulos(dados):
-    leitor = PdfReader(io.BytesIO(dados))
-    paginas = [(p.extract_text() or "") for p in leitor.pages]
-    titulo = ""
-    try:
-        titulo = (leitor.metadata.title or "").strip() if leitor.metadata else ""
-    except Exception:
-        pass
-    caps = caps_sumario(leitor, paginas) or caps_titulos(paginas)
-    if not caps:
-        caps = [(f"Páginas {i + 1}–{min(i + 10, len(paginas))}", "\n".join(paginas[i:i + 10]), i, min(i + 9, len(paginas) - 1))
-                for i in range(0, len(paginas), 10)]
-    caps = [(t, limpar(x), a, b) for t, x, a, b in caps]
-    return titulo, len(paginas), [c for c in caps if palavras(c[1]) > 3]
-
-
+# ---------------------------------------------------------------- utilidades
 def blocos(texto, tamanho=3000):
     frases = re.split(r"(?<=[.!?…])\s+", texto)
     atual = ""
@@ -186,7 +102,8 @@ def trabalhar(job_id):
     try:
         for n, cap in enumerate(job["capitulos"]):
             cap["status"] = "narrando"
-            partes = list(blocos(cap["texto"], 3800 if MOTOR.get(job["voz"]) == "openai" else 3000))
+            texto = pronunciar(cap["texto"], job["pron"])
+            partes = list(blocos(texto, 3800 if MOTOR.get(job["voz"]) == "openai" else 3000))
             caminho = os.path.join(PASTA, f"{job_id}-{n:03d}.mp3")
             with open(caminho, "wb") as mp3:
                 for i, parte in enumerate(partes, 1):
@@ -206,56 +123,102 @@ def publico(job):
     }
 
 
+def ler_pron(bruto):
+    try:
+        lista = json.loads(bruto or "[]")
+        return [(str(d)[:80], str(p)[:120]) for d, p in lista if str(d).strip()][:300]
+    except Exception:
+        return []
+
+
+def ler_arquivo(arq, limpar_on):
+    nome = arq.filename or "livro.pdf"
+    if not nome.lower().endswith(leitura.FORMATOS):
+        raise ValueError("Envie um arquivo PDF, EPUB ou Word (.docx).")
+    try:
+        return leitura.ler(arq.read(), nome, limpar_on)
+    except ValueError as e:
+        if "senha" in str(e):
+            raise ValueError("Este arquivo está protegido por senha. Tire a senha e envie de novo.")
+        raise ValueError("Não consegui ler este arquivo. Ele pode estar corrompido.")
+    except Exception:
+        raise ValueError("Não consegui ler este arquivo. Ele pode estar corrompido ou protegido.")
+
+
 # ---------------------------------------------------------------- rotas
 @app.get("/")
 def inicio():
     return render_template("index.html", vozes=VOZES, padrao=VOZ_PADRAO)
 
 
+ANALISES = {}  # id -> resultado de leitura.ler, para não ler o livro duas vezes
+
+
+@app.post("/analisar")
+def analisar():
+    """Lê o livro e devolve os capítulos encontrados (para escolher antes de narrar)."""
+    arq = request.files.get("pdf")
+    if not arq:
+        return jsonify(erro="Envie um arquivo PDF, EPUB ou Word."), 400
+    try:
+        r = ler_arquivo(arq, request.form.get("limpar", "1") == "1")
+    except ValueError as e:
+        return jsonify(erro=str(e)), 400
+    aid = uuid.uuid4().hex
+    ANALISES[aid] = r
+    while len(ANALISES) > 12:
+        ANALISES.pop(next(iter(ANALISES)))
+    return jsonify(analise=aid, titulo=r["titulo"], paginas=r["paginas"], removidos=r["removidos"],
+                   tem_pdf=bool(r["pdf"]),
+                   capitulos=[{"titulo": t, "minutos": max(1, round(palavras(x) / 150)), "pag_ini": a, "pag_fim": b}
+                              for t, x, a, b in r["caps"]])
+
+
+@app.get("/pdf/<aid>")
+def pdf_convertido(aid):
+    r = ANALISES.get(aid) or abort(404)
+    if not r["pdf"]:
+        abort(404)
+    return send_file(io.BytesIO(r["pdf"]), mimetype="application/pdf")
+
+
+@app.get("/texto/<aid>/<int:n>")
+def texto_capitulo(aid, n):
+    """Começo do texto do capítulo, já limpo e com as pronúncias, para conferir."""
+    r = ANALISES.get(aid) or abort(404)
+    if n >= len(r["caps"]):
+        abort(404)
+    t = r["caps"][n][1]
+    return jsonify(texto=t[:1500], total=len(t))
+
+
 @app.post("/converter")
 def converter():
-    arq = request.files.get("pdf")
-    if not arq or not arq.filename.lower().endswith(".pdf"):
-        return jsonify(erro="Envie um arquivo .pdf."), 400
-    try:
-        titulo, npag, caps = capitulos(arq.read())
-    except Exception:
-        return jsonify(erro="Não consegui ler este PDF. Ele pode estar protegido por senha."), 400
-    if not caps:
-        return jsonify(erro="Este PDF não tem texto selecionável (provavelmente é escaneado). Passe por OCR antes."), 400
+    r = ANALISES.get(request.form.get("analise", ""))
+    if not r:
+        arq = request.files.get("pdf")
+        if not arq:
+            return jsonify(erro="Envie o livro de novo (o site reiniciou)."), 400
+        try:
+            r = ler_arquivo(arq, request.form.get("limpar", "1") == "1")
+        except ValueError as e:
+            return jsonify(erro=str(e)), 400
+    if not r["caps"]:
+        return jsonify(erro="Este arquivo não tem texto selecionável (provavelmente é escaneado)."), 400
     voz = request.form.get("voz", VOZ_PADRAO)
     voz = voz if voz in MOTOR else VOZ_PADRAO
     velocidade = max(-50, min(100, int(request.form.get("velocidade", "0") or 0)))
     escolhidos = request.form.get("capitulos")  # "1,3,5" (opcional)
     job_id = uuid.uuid4().hex
-    titulo = titulo if len(titulo) > 2 and not titulo.lower().startswith(("untitled", "microsoft word")) \
-        else re.sub(r"\.pdf$", "", arq.filename, flags=re.I)
     lista = [{"titulo": t, "texto": x, "status": "na fila", "progresso": 0, "pag_ini": a, "pag_fim": b,
-              "minutos": max(1, round(palavras(x) / (150 * (1 + velocidade / 100))))} for t, x, a, b in caps]
+              "minutos": max(1, round(palavras(x) / (150 * (1 + velocidade / 100))))} for t, x, a, b in r["caps"]]
     if escolhidos:
         idx = {int(i) for i in escolhidos.split(",") if i.strip().isdigit()}
         lista = [c for i, c in enumerate(lista) if i in idx] or lista
-    JOBS[job_id] = {"titulo": titulo, "status": "narrando", "voz": voz, "velocidade": velocidade,
-                    "capitulos": lista, "paginas": npag}
+    JOBS[job_id] = {"titulo": r["titulo"], "status": "narrando", "voz": voz, "velocidade": velocidade,
+                    "capitulos": lista, "paginas": r["paginas"], "pron": ler_pron(request.form.get("pron"))}
     threading.Thread(target=trabalhar, args=(job_id,), daemon=True).start()
     return jsonify(id=job_id, **publico(JOBS[job_id]))
-
-
-@app.post("/analisar")
-def analisar():
-    """Só lê o PDF e devolve os capítulos encontrados (para escolher antes de narrar)."""
-    arq = request.files.get("pdf")
-    if not arq:
-        return jsonify(erro="Envie um arquivo .pdf."), 400
-    try:
-        titulo, npag, caps = capitulos(arq.read())
-    except Exception:
-        return jsonify(erro="Não consegui ler este PDF."), 400
-    if len(titulo) <= 2 or titulo.lower().startswith(("untitled", "microsoft word")):
-        titulo = re.sub(r"\.pdf$", "", arq.filename, flags=re.I)
-    return jsonify(titulo=titulo, paginas=npag,
-                   capitulos=[{"titulo": t, "minutos": max(1, round(palavras(x) / 150)), "pag_ini": a, "pag_fim": b}
-                              for t, x, a, b in caps])
 
 
 @app.get("/status/<job_id>")
@@ -302,6 +265,30 @@ def amostra(voz):
         narrar_trecho("Olá! Esta é a minha voz. Vamos ouvir o seu livro juntos?", voz, 0, mem)
         AMOSTRAS[voz] = mem.getvalue()
     return send_file(io.BytesIO(AMOSTRAS[voz]), mimetype="audio/mpeg")
+
+
+TESTES = {}
+
+
+@app.post("/testar")
+def testar():
+    """Fala um texto curto (com as pronúncias aplicadas) para conferir como ficou."""
+    voz = request.form.get("voz", VOZ_PADRAO)
+    voz = voz if voz in MOTOR else VOZ_PADRAO
+    texto = pronunciar((request.form.get("texto") or "")[:300], ler_pron(request.form.get("pron")))
+    if not texto.strip():
+        return jsonify(erro="Escreva algo para testar."), 400
+    chave = (voz, texto)
+    if chave not in TESTES:
+        mem = io.BytesIO()
+        try:
+            narrar_trecho(texto, voz, 0, mem)
+        except Exception:
+            return jsonify(erro="Não consegui gerar a voz agora. Tente de novo em instantes."), 502
+        TESTES[chave] = mem.getvalue()
+        while len(TESTES) > 50:
+            TESTES.pop(next(iter(TESTES)))
+    return send_file(io.BytesIO(TESTES[chave]), mimetype="audio/mpeg")
 
 
 if __name__ == "__main__":
