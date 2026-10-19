@@ -17,6 +17,10 @@ Envie um PDF, EPUB ou Word (.docx), escolha a voz e receba o audiolivro em MP3, 
 - **"Onde eu estava?"**: botão no tocador (e no modo carro) que volta para o começo da frase anterior quando você se distrai.
 - **Relógio e tela de bloqueio**: capa, título, barra de progresso e botões (tocar, pausar, voltar/avançar, próximo capítulo) aparecem no smartwatch e na tela de bloqueio, pelo controle de mídia do próprio celular.
 - **Despertador com livro**: escolha a hora e o livro começa a tocar baixinho, com o volume subindo aos poucos (1 a 10 min). Tem soneca de 10 min. Funciona com o site aberto e a tela ligada (o navegador não toca com o site fechado).
+- **Frases importantes**: o botão ✦ do tocador (e do modo carro) guarda o texto da frase que está tocando. Elas ficam numa lista no livro, sublinhadas no texto, e dá para copiar todas ou baixar em .txt.
+- **Revisão em áudio**: junta os marcadores e as frases importantes de um livro num único MP3 curto, com anúncio de cada trecho ("Trecho 1. Capítulo 3."), para ouvir e baixar antes da prova. É montada no próprio aparelho, sem pesar o servidor.
+- **Páginas**: os números mostram quanto você ouviu em páginas do livro (ou ~275 palavras por página, quando o arquivo não tem páginas).
+- **Metas**: meta diária em minutos, com barra e aviso quando cumprida; e meta para terminar um livro até uma data, com o cálculo de quantos minutos ouvir por dia.
 - **Marcadores**: botão 🔖 no tocador guarda o trecho com uma anotação; a lista fica no livro e leva direto ao ponto.
 - **Modo carro**: tela cheia com botões grandes (voltar/avançar 30 s, capítulo, marcar) e tela sempre acesa.
 - **Ajustes de som** (no aparelho, sem pesar o servidor): reforçar a voz, pular silêncios e música de fundo (ambiente, chuva ou mar, gerada no próprio navegador, sem direitos autorais). Valem para ouvir no site, não entram nos MP3 baixados.

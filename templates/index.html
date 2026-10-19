@@ -297,6 +297,36 @@ select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(-
 .alrow input[type=time]{font:inherit;font-size:1.3rem;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:6px 10px}
 .car .top{flex-wrap:wrap}
 @media (max-width:420px){.car .big-txt{padding:12px 16px;font-size:1rem}}
+/* frases importantes */
+.fr.imp{text-decoration:underline;text-decoration-color:var(--gold);text-decoration-thickness:2px;text-underline-offset:4px}
+.dqs{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.dq{padding:14px 2px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:8px}
+.dq:first-child{border-top:0}
+.dq-t{margin:0;font-family:var(--read);font-size:1.05rem;line-height:1.65;max-width:64ch;overflow-wrap:anywhere}
+.dq-m{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.dq-m span{font-size:.8rem;color:var(--gold);font-weight:600;font-variant-numeric:tabular-nums;margin-right:4px}
+/* revisão */
+.rev-opts{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end;margin:4px 0 14px}
+.rev-out{display:flex;flex-direction:column;gap:10px;margin-top:14px}
+.rev-out audio{width:100%}
+/* metas */
+.meta-dia{margin-top:16px;background:var(--bg);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.md-top{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:.9rem}
+.md-top label{font-weight:600}
+.md-top select{padding:6px 8px;font-size:.85rem;background:var(--card)}
+#metaTxt{color:var(--muted);font-variant-numeric:tabular-nums}
+.md-bar{height:8px;border-radius:4px;background:var(--line);overflow:hidden;display:none}
+.meta-dia.on .md-bar{display:block}
+.md-bar i{display:block;height:100%;width:0;background:var(--gold);border-radius:4px;transition:width .4s}
+.meta-dia.ok .md-bar i{background:var(--ok)}
+.meta-dia.ok #metaTxt{color:var(--ok);font-weight:600}
+.tile small{font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.meta-livro{margin-top:14px;display:flex;flex-direction:column;gap:6px;text-align:left}
+.ml-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:.9rem;font-weight:600}
+.ml-row input[type=date]{font:inherit;font-weight:400;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:6px 10px}
+.ml-txt{margin:0;font-size:.88rem;color:var(--muted);max-width:52ch}
+.meta-me{color:var(--gold)!important}
+@media (max-width:620px){.ml-row{justify-content:center}.meta-livro{text-align:center;align-items:center}}
 /* tocador */
 .player{position:fixed;left:0;right:0;bottom:0;padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));background:color-mix(in srgb,var(--card) 92%,transparent);backdrop-filter:blur(10px);border-top:1px solid var(--line)}
 .pin{max-width:1000px;margin:0 auto;display:grid;grid-template-columns:auto auto minmax(0,1fr) auto;gap:16px;align-items:center}
@@ -342,10 +372,16 @@ select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(-
   <section class="card" id="statsCard" hidden>
     <div class="lib-head"><h2>Seus números</h2><small>tempo ouvindo neste aparelho</small></div>
     <div class="tiles">
-      <div class="tile"><span>Hoje</span><b id="stHoje">0 min</b></div>
-      <div class="tile"><span>Últimos 7 dias</span><b id="stSemana">0 min</b></div>
+      <div class="tile"><span>Hoje</span><b id="stHoje">0 min</b><small id="stHojePg"></small></div>
+      <div class="tile"><span>Últimos 7 dias</span><b id="stSemana">0 min</b><small id="stSemanaPg"></small></div>
       <div class="tile"><span>Dias seguidos</span><b id="stSeq">0 dias</b></div>
       <div class="tile"><span id="stAnoL">Terminados</span><b id="stAno">0</b></div>
+    </div>
+    <div class="meta-dia" id="metaBox">
+      <div class="md-top"><label for="metaSel">🎯 Meta diária</label>
+        <select id="metaSel"><option value="0">Sem meta</option><option value="15">15 min</option><option value="30">30 min</option><option value="45">45 min</option><option value="60">1 hora</option><option value="90">1 h 30</option></select>
+        <span id="metaTxt"></span></div>
+      <div class="md-bar" id="metaBar" role="progressbar" aria-label="Meta de hoje" aria-valuemin="0" aria-valuemax="100"><i id="metaFill"></i></div>
     </div>
     <div class="weekbox"><h3>Últimos 7 dias</h3><div class="wtip" id="weekTip" hidden></div><div class="week" id="week"></div></div>
     <p class="st-total" id="stTotal"></p>
@@ -372,6 +408,10 @@ select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(-
         <h1 id="bookT"></h1>
         <div class="facts"><span><b id="nCaps">0</b> capítulos</span><span id="fPag"><b id="nPag">0</b> páginas</span><span>cerca de <b id="nDur">—</b> de áudio</span></div>
         <div class="clean" id="cleanInfo" hidden></div>
+        <div class="meta-livro" id="metaLivro" hidden>
+          <div class="ml-row"><label for="metaData">🎯 Terminar até</label><input type="date" id="metaData"><button class="mini-btn" id="metaLimpar" hidden>Tirar meta</button></div>
+          <p class="ml-txt" id="metaLivroTxt"></p>
+        </div>
         <div class="resume" id="resume" hidden><button class="go" id="resumeBtn"></button></div>
         <button class="link" id="trocar">← Voltar para a biblioteca</button>
       </div>
@@ -435,11 +475,32 @@ select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(-
     <button class="mini-btn" id="voltarAqui" hidden>↓ Voltar para o trecho que está tocando</button>
   </section>
 
+  <section class="card" id="destCard" hidden>
+    <div class="head">
+      <div><h2>Frases importantes</h2><p class="sub" style="margin:0">Toque no ✦ do tocador para guardar a frase que está tocando.</p></div>
+      <div class="acts"><button class="mini-btn" id="destCopiar" hidden>Copiar todas</button><button class="mini-btn" id="destBaixar" hidden>⬇ Baixar .txt</button></div>
+    </div>
+    <p class="empty" id="destEmpty">Nenhuma frase ainda. Ouça e toque no ✦ quando uma frase for importante: ela fica guardada aqui com o texto, e sublinhada no texto do capítulo.</p>
+    <ol class="dqs" id="destList"></ol>
+  </section>
+
   <section class="card" id="marksCard" hidden>
     <h2>Marcadores</h2>
     <p class="sub">Toque num marcador para ouvir a partir dali.</p>
     <p class="empty" id="marksEmpty">Nenhum marcador ainda. Toque no 🔖 do tocador para guardar um trecho, com ou sem anotação.</p>
     <ol class="marks" id="marks"></ol>
+  </section>
+
+  <section class="card" id="revCard" hidden>
+    <h2>Revisão em áudio</h2>
+    <p class="sub" id="revInfo"></p>
+    <div class="rev-opts">
+      <label class="f" for="revJanela">Tempo de cada marcador<select id="revJanela"><option value="15">15 segundos</option><option value="30" selected>30 segundos</option><option value="60">1 minuto</option></select></label>
+      <label class="tg" for="revAnunciar"><input type="checkbox" id="revAnunciar" checked><span>Anunciar cada trecho<small>“Trecho 1. Capítulo 3.” antes de cada parte</small></span></label>
+    </div>
+    <button class="go" id="revBtn">🎧 Criar revisão</button>
+    <p class="msg" id="revMsg" hidden></p>
+    <div class="rev-out" id="revOut" hidden><audio id="revAudio" controls preload="metadata"></audio><div><button class="ghost" id="revBaixar">⬇ Baixar a revisão (MP3)</button></div></div>
   </section>
 </div>
 
@@ -478,6 +539,7 @@ select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(-
       <button class="sk txt" id="pFwd" aria-label="Avançar 15 segundos">15<svg viewBox="0 0 24 24"><path d="M12 5V2l5 4-5 4V7a6 6 0 1 0 6 6h2a8 8 0 1 1-8-8z"/></svg></button>
       <button class="sk" id="pNext" aria-label="Próximo capítulo"><svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg></button>
       <button class="sk" id="pWhere" aria-label="Onde eu estava? Repetir as últimas frases" title="Onde eu estava? (repete as últimas frases)"><svg viewBox="0 0 24 24"><path d="M12 4a8 8 0 1 1-7.9 9.3h2.03A6 6 0 1 0 12 6v3L7.5 5 12 1z"/><circle cx="12" cy="14" r="1.6"/></svg></button>
+      <button class="sk" id="pDest" aria-label="Guardar esta frase como importante" title="Frase importante (guarda o texto da frase que está tocando)"><svg viewBox="0 0 24 24"><path d="M12 2l2.4 6.6L21 11l-6.6 2.4L12 20l-2.4-6.6L3 11l6.6-2.4z"/></svg></button>
       <button class="sk" id="pMark" aria-label="Marcar este trecho" title="Marcar este trecho"><svg viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4-6 4z"/></svg></button>
     </div>
     <div class="pi">
@@ -506,7 +568,7 @@ select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(-
   <p class="al-tip">Mantenha esta tela aberta e o celular na tomada.</p>
 </div>
 <div class="car" id="car" hidden role="dialog" aria-label="Modo carro">
-  <div class="top"><button class="big-txt" id="carMark">🔖 Marcar</button><button class="big-txt" id="carWhere">↺ Onde eu estava?</button><button class="big-txt" id="carExit">Sair ✕</button></div>
+  <div class="top"><button class="big-txt" id="carMark">🔖 Marcar</button><button class="big-txt" id="carWhere">↺ Onde eu estava?</button><button class="big-txt" id="carDest">✦ Frase importante</button><button class="big-txt" id="carExit">Sair ✕</button></div>
   <div class="info"><div id="carBook"></div><div id="carCap"></div><div id="carLeft"></div><div class="cbar"><i id="carFill"></i></div></div>
   <div class="main">
     <button class="cb skip" id="carBack" aria-label="Voltar 30 segundos"><svg viewBox="0 0 24 24"><path d="M12 5V2L7 6l5 4V7a6 6 0 1 1-6 6H4a8 8 0 1 0 8-8z"/></svg>30</button>
@@ -544,12 +606,12 @@ let file=null, pdfBlob=null, analise=null, livro=null, server={}, serverGone=fal
 const posKey=id=>"pos:"+id;
 
 /* ---------------- biblioteca ---------------- */
-async function excluir(id){await idb.delRange("audios",id+":",id+":￿"); await idb.del("livros",id); try{localStorage.removeItem(posKey(id)); localStorage.removeItem("marc:"+id)}catch(e){}}
+async function excluir(id){await idb.delRange("audios",id+":",id+":￿"); await idb.del("livros",id); try{["marc:","dest:","metaL:"].forEach(k=>localStorage.removeItem(k+id)); localStorage.removeItem(posKey(id))}catch(e){}}
 
 async function abrirLivro(id,tocarJa){
   const l=await idb.get("livros",id); if(!l) return;
   livro=l; serverGone=false; server={}; audioURL={}; cur=-1;
-  ["library","stepUpload","stepVoice"].forEach(k=>$(k).hidden=true); ["stepBook","stepCaps"].forEach(k=>$(k).hidden=false);
+  ["library","statsCard","stepUpload","stepVoice"].forEach(k=>$(k).hidden=true); ["stepBook","stepCaps"].forEach(k=>$(k).hidden=false);
   $("gerar").hidden=true; mostrarLivro();
   if(l.pdf) abrirPdf(l.pdf); else if(l.capa) usarCapa(l.capa);
   renderCaps();
@@ -563,7 +625,7 @@ async function abrirLivro(id,tocarJa){
 }
 function mostrarLivro(){
   $("bookT").textContent=livro.titulo; $("coverT").textContent=livro.titulo;
-  if(typeof renderMarks==="function") setTimeout(renderMarks);
+  if(typeof renderMarks==="function") setTimeout(()=>{renderMarks(); renderDest(); renderMetaLivro()});
   $("nCaps").textContent=livro.capitulos.length; $("nPag").textContent=livro.paginas||"—"; $("fPag").hidden=!livro.paginas;
   $("nDur").textContent=fmtMin(livro.capitulos.reduce((a,c)=>a+c.minutos,0));
 }
@@ -597,7 +659,7 @@ async function escolher(f){
   if(/\.pdf$/i.test(f.name)) pdfBlob=f;
   else if(j.tem_pdf){try{pdfBlob=await (await fetch("/pdf/"+j.analise)).blob()}catch(e){}}
   if(pdfBlob) abrirPdf(pdfBlob);
-  ["library","stepUpload"].forEach(k=>$(k).hidden=true); ["stepBook","stepVoice","stepCaps"].forEach(k=>$(k).hidden=false);
+  ["library","statsCard","stepUpload"].forEach(k=>$(k).hidden=true); ["stepBook","stepVoice","stepCaps"].forEach(k=>$(k).hidden=false);
   $("trocar").textContent="← Escolher outro livro"; mostrarLivro();
   const rem=Object.entries(j.removidos||{}).filter(([k,v])=>v);
   $("cleanInfo").hidden=!rem.length;
@@ -850,7 +912,7 @@ const fmtT=s=>fmt(Math.max(0,s||0));
 /* ---------- marcadores ---------- */
 const mkKey=id=>"marc:"+id;
 function marcadores(){return livro&&livro.id?ls.get(mkKey(livro.id),[]):[]}
-function salvarMarcadores(l){ls.set(mkKey(livro.id),l); renderMarks()}
+function salvarMarcadores(l){ls.set(mkKey(livro.id),l); renderMarks(); renderRevisao()}
 function novoMarcador(nota){
   if(!livro||!livro.id||cur<0) return null;
   const m={id:Date.now().toString(36),cap:cur,t:Math.floor(au.currentTime||0),nota:(nota||"").trim(),quando:Date.now()};
@@ -1051,6 +1113,7 @@ function cartaoLivro(l,pct,tg,todasTags){
     <div class="tagedit" hidden><div class="tagrow"></div>
       <div class="tagadd"><input list="tagList" placeholder="Nova etiqueta" aria-label="Nova etiqueta" maxlength="24"><button class="mini-btn">Adicionar</button></div></div>`;
   el.querySelector(".nm").textContent=l.titulo; el.querySelector(".ti").textContent=l.titulo;
+  {const mt=textoMeta(l,true); if(mt){const m=document.createElement("div"); m.className="me meta-me"; m.textContent=mt; el.querySelector(".me").after(m)}}
   if(l.capa){const im=document.createElement("img"); im.alt=""; im.src=URL.createObjectURL(l.capa); el.querySelector(".cv").prepend(im)}
   const tagsBox=el.querySelector(".tags");
   tg.forEach(t=>{const s=document.createElement("button"); s.className="tg-pill"; s.textContent="# "+t; s.onclick=()=>{filtro="#"+t; ls.set("libFiltro",filtro); mostrarBiblioteca()}; tagsBox.appendChild(s)});
@@ -1087,12 +1150,16 @@ async function marcarLido(id,lido){
 $("libBusca").oninput=e=>{busca=e.target.value; mostrarBiblioteca()};
 
 /* ---------------- estatísticas ---------------- */
-function stats(){const s=ls.get("stats",{}); return {dias:s.dias||{},fim:s.fim||{}}}
+function stats(){const s=ls.get("stats",{}); return {dias:s.dias||{},fim:s.fim||{},pags:s.pags||{}}}
 const diaKey=(d=new Date())=>d.toLocaleDateString("sv");
-let stBuf=0, stLast=0;
-function flushStats(){if(stBuf<1) return; const s=stats(), k=diaKey(); s.dias[k]=Math.round((s.dias[k]||0)+stBuf); stBuf=0; ls.set("stats",s)}
-au.addEventListener("play",()=>{stLast=performance.now()});
+let stBuf=0, stLast=0, stPagBuf=0, audLast=null;
+function flushStats(){if(stBuf<1&&stPagBuf<0.05) return; const s=stats(), k=diaKey();
+  if(stBuf>=1){s.dias[k]=Math.round((s.dias[k]||0)+stBuf); stBuf=0}
+  if(stPagBuf>0){s.pags[k]=+((s.pags[k]||0)+stPagBuf).toFixed(2); stPagBuf=0}
+  ls.set("stats",s); if(typeof checarMeta==="function") checarMeta(s)}
+au.addEventListener("play",()=>{stLast=performance.now(); audLast=au.currentTime});
 au.addEventListener("timeupdate",()=>{if(au.paused){stLast=0;return} const now=performance.now();
+  {const ct=au.currentTime; if(audLast!=null){const da=ct-audLast; if(da>0&&da<6) stPagBuf+=da*paginasPorSeg()} audLast=ct}
   if(stLast){const d=(now-stLast)/1000; if(d>0&&d<3) stBuf+=d} stLast=now; if(stBuf>=15) flushStats()});
 au.addEventListener("pause",()=>{stLast=0; flushStats()});
 addEventListener("pagehide",flushStats);
@@ -1119,6 +1186,7 @@ function renderStats(livros){
     c.innerHTML=`<div class="track"><i style="height:${x.v?Math.max(4,100*x.v/max):0}%"></i></div><span>${i===6?"hoje":wd.format(x.d).replace(".","").slice(0,3)}</span>`;
     c.tabIndex=0; c.setAttribute("role","img"); c.setAttribute("aria-label",rot); c.dataset.tip=x.v?rot:rot.replace(/: .*/,": nada ouvido");
     box.appendChild(c);});
+  renderMetaDia(s);
 }
 (()=>{const tip=$("weekTip"), box=$("week");
   const show=c=>{if(!c) return; tip.textContent=c.dataset.tip; tip.hidden=false; const r=c.getBoundingClientRect(), b=box.getBoundingClientRect();
@@ -1144,10 +1212,10 @@ async function fazerBackup(ids){
     if(capa) z.file(`livros/${l.id}/capa.jpg`,capa);
     if(pdf) z.file(`livros/${l.id}/livro.pdf`,pdf);
     for(const i of l.salvos){const b=await idb.get("audios",`${l.id}:${i}`); if(b) z.file(`livros/${l.id}/${i}.mp3`,b)}
-    meta.pos=ls.get(posKey(l.id),null); meta.marcadores=ls.get("marc:"+l.id,[]);
+    meta.pos=ls.get(posKey(l.id),null); meta.marcadores=ls.get("marc:"+l.id,[]); meta.destaques=ls.get("dest:"+l.id,[]); meta.metaAte=ls.get("metaL:"+l.id,null);
     man.livros.push(meta);
   }
-  if(!ids){flushStats(); man.local={pron:ls.get("pron",[]),speed:ls.get("speed",null),audiofx:ls.get("audiofx",null),stats:stats()}}
+  if(!ids){flushStats(); man.local={pron:ls.get("pron",[]),speed:ls.get("speed",null),audiofx:ls.get("audiofx",null),stats:stats(),metaDia:ls.get("metaDia",0)}}
   z.file("vox.json",JSON.stringify(man,null,1));
   try{
     const blob=await z.generateAsync({type:"blob",compression:"STORE",streamFiles:true},m=>msg(el,`Preparando o backup… ${Math.round(m.percent)}%`));
@@ -1167,7 +1235,9 @@ async function restaurar(f){
   try{
     for(const [n,meta] of man.livros.entries()){
       msg(el,`Restaurando ${n+1} de ${man.livros.length}: ${meta.titulo}…`);
-      const {arquivos={},pos,marcadores=[],...l}=meta, base=`livros/${meta.id}/`, atual=await idb.get("livros",meta.id);
+      const {arquivos={},pos,marcadores=[],destaques:dq=[],metaAte=null,...l}=meta, base=`livros/${meta.id}/`, atual=await idb.get("livros",meta.id);
+      {const minhasD=ls.get("dest:"+meta.id,[]), idsD=new Set(minhasD.map(d=>d.id)); ls.set("dest:"+meta.id,[...minhasD,...dq.filter(d=>!idsD.has(d.id))].sort((a,b)=>a.cap-b.cap||a.t-b.t))}
+      if(metaAte&&!ls.get("metaL:"+meta.id,null)) ls.set("metaL:"+meta.id,metaAte);
       const minhas=ls.get("marc:"+meta.id,[]), ids=new Set(minhas.map(m=>m.id));
       ls.set("marc:"+meta.id,[...minhas,...marcadores.filter(m=>!ids.has(m.id))].sort((a,b)=>a.cap-b.cap||a.t-b.t));
       if(pos&&!ls.get(posKey(meta.id),null)) ls.set(posKey(meta.id),pos);
@@ -1187,8 +1257,9 @@ async function restaurar(f){
   if(man.local){const L=man.local;
     const pr=ls.get("pron",[]), ja=new Set(pr.map(p=>(p[0]||"").toLowerCase())); ls.set("pron",[...pr,...(L.pron||[]).filter(p=>!ja.has((p[0]||"").toLowerCase()))]);
     if(L.speed!=null&&ls.get("speed",null)==null) ls.set("speed",L.speed);
+    if(L.metaDia&&!ls.get("metaDia",0)) ls.set("metaDia",L.metaDia);
     if(L.audiofx&&!ls.get("audiofx",null)) ls.set("audiofx",L.audiofx);
-    if(L.stats){const s=stats(); Object.entries(L.stats.dias||{}).forEach(([k,v])=>s.dias[k]=Math.max(s.dias[k]||0,v)); Object.assign(s.fim,Object.fromEntries(Object.entries(L.stats.fim||{}).filter(([k])=>!s.fim[k]))); ls.set("stats",s)}}
+    if(L.stats){const s=stats(); Object.entries(L.stats.dias||{}).forEach(([k,v])=>s.dias[k]=Math.max(s.dias[k]||0,v)); Object.entries(L.stats.pags||{}).forEach(([k,v])=>s.pags[k]=Math.max(s.pags[k]||0,v)); Object.assign(s.fim,Object.fromEntries(Object.entries(L.stats.fim||{}).filter(([k])=>!s.fim[k]))); ls.set("stats",s)}}
   await mostrarBiblioteca();
   if(!$("library").hidden) msg($("upMsg"),"");
   msg($("library").hidden?$("upMsg"):$("libMsg"),`Backup restaurado: ${novos} livro(s) adicionados`+(iguais?`, ${iguais} já estava(m) aqui`:"")+".");
@@ -1228,7 +1299,7 @@ async function mostrarLeitura(i){
   legAtual=f; let p=null;
   legSpans=f.map((u,k)=>{if(u.p||!p){p=document.createElement("p"); box.appendChild(p)}
     const s=document.createElement("span"); s.className="fr"; s.textContent=u.s+" "; s.dataset.k=k; p.appendChild(s); return s});
-  calcTempos(); seguir(true);
+  calcTempos(); seguir(true); marcarImp();
 }
 function calcTempos(){
   if(!legAtual) return; const n=legAtual.length, D=(legCap===cur&&isFinite(au.duration))?au.duration:null;
@@ -1371,6 +1442,174 @@ $("alKeep").onclick=()=>{fecharAlarme(); aviso("Bom dia! Continuando a leitura")
 $("alSnooze").onclick=()=>{au.pause(); alarme.cap=cur; alarme.t=Math.max(0,Math.floor(au.currentTime)-5); alarme.quando=Date.now()+10*60000; alarme.tocando=false;
   volumeMestre(0); $("alarm").classList.remove("ringing"); $("alArmed").hidden=false; $("alRinging").hidden=true; tickAlarme()};
 document.addEventListener("visibilitychange",()=>{if(alarme&&document.visibilityState==="visible") manterAceso()});
+
+
+/* ================= frases importantes ================= */
+const destKey=id=>"dest:"+id;
+function destaques(){return livro&&livro.id?ls.get(destKey(livro.id),[]):[]}
+function salvarDestaques(l){ls.set(destKey(livro.id),l); renderDest(); marcarImp()}
+function destacar(){
+  if(!livro||!livro.id||cur<0) return;
+  if(!(legTimes&&legCap===cur&&legAtual)){novoMarcador(""); aviso("Este capítulo não tem o texto salvo: guardei o trecho como marcador."); return}
+  let k=idxEm(au.currentTime); if(k>0&&au.currentTime-legTimes[k]<0.8) k--; // tocou logo depois da frase acabar: fica com a anterior
+  const l=destaques(); if(l.some(d=>d.cap===cur&&d.k===k)){aviso("Essa frase já está nas importantes"); return}
+  l.push({id:Date.now().toString(36),cap:cur,k,t:+legTimes[k].toFixed(2),fim:legTimes[k+1]!=null?+legTimes[k+1].toFixed(2):null,texto:legAtual[k].s,quando:Date.now()});
+  l.sort((a,b)=>a.cap-b.cap||a.t-b.t); salvarDestaques(l); aviso("Frase importante guardada ✦");
+}
+$("pDest").onclick=destacar; $("carDest").onclick=destacar;
+function marcarImp(){
+  legSpans.forEach(s=>s.classList.remove("imp"));
+  destaques().filter(d=>d.cap===legCap).forEach(d=>{if(legSpans[d.k]) legSpans[d.k].classList.add("imp")});
+}
+function textoDestaques(){
+  const l=destaques();
+  return `${livro.titulo}\nFrases importantes (${l.length})\n\n`+l.map(d=>`“${d.texto}”\n— Capítulo ${d.cap+1}, ${fmtT(d.t)}`).join("\n\n")+"\n";
+}
+function renderDest(){
+  if(!livro||!livro.id){$("destCard").hidden=true; return}
+  $("destCard").hidden=false; const l=destaques(), box=$("destList"); box.innerHTML="";
+  $("destEmpty").hidden=!!l.length; $("destCopiar").hidden=$("destBaixar").hidden=!l.length;
+  l.forEach(d=>{const li=document.createElement("li"); li.className="dq";
+    li.innerHTML=`<p class="dq-t"></p><div class="dq-m"><span></span><button class="mini-btn ouvir">▶ Ouvir</button><button class="mini-btn danger del">Excluir</button></div>`;
+    li.querySelector(".dq-t").textContent=`“${d.texto}”`;
+    li.querySelector(".dq-m span").textContent=`Cap. ${d.cap+1} · ${fmtT(d.t)}`;
+    li.querySelector(".ouvir").onclick=()=>tocar(d.cap,Math.max(.01,d.t-0.2));
+    const del=li.querySelector(".del"); del.onclick=()=>{if(del.dataset.ok){salvarDestaques(destaques().filter(x=>x.id!==d.id)); renderRevisao(); return}
+      del.dataset.ok=1; del.textContent="Confirmar"; setTimeout(()=>{if(del.isConnected){delete del.dataset.ok; del.textContent="Excluir"}},4000)};
+    box.appendChild(li);});
+  renderRevisao();
+}
+$("destCopiar").onclick=async()=>{const t=textoDestaques();
+  try{await navigator.clipboard.writeText(t); aviso("Frases copiadas")}
+  catch(e){const ta=document.createElement("textarea"); ta.value=t; document.body.appendChild(ta); ta.select(); try{document.execCommand("copy"); aviso("Frases copiadas")}catch(e2){} ta.remove()}};
+$("destBaixar").onclick=()=>baixarBlob(new Blob([textoDestaques()],{type:"text/plain;charset=utf-8"}),`VOX-frases-${nomeArq(livro.titulo)}.txt`);
+
+/* ================= revisão em áudio ================= */
+function temposDe(f,dur){
+  const n=f.length, len=f.map(u=>Math.max(1,u.s.length)), t=f.map(u=>u.t);
+  if(t[0]==null) t[0]=0;
+  for(let a=1;a<n;a++){if(t[a]!=null) continue; let b=a; while(b<n&&t[b]==null) b++;
+    let C=0; for(let j=a-1;j<b;j++) C+=len[j];
+    const t0=t[a-1], t1=b<n?t[b]:(dur||t0+C/15); let acc=len[a-1];
+    for(let j=a;j<b;j++){t[j]=t0+(t1-t0)*acc/C; acc+=len[j]} a=b}
+  for(let j=1;j<n;j++) if(t[j]<t[j-1]) t[j]=t[j-1];
+  return t;
+}
+async function audioBlob(i){
+  if(livro.salvos.includes(i)){const b=await idb.get("audios",`${livro.id}:${i}`); if(b) return b}
+  return await (await fetch(await fonte(i))).blob();
+}
+async function alinharQuadro(blob,pos){ // começa o corte no início de um quadro MP3, para não sair chiado
+  const b=new Uint8Array(await blob.slice(pos,pos+4096).arrayBuffer());
+  for(let i=0;i+3<b.length;i++){if(b[i]===0xFF&&(b[i+1]&0xE0)===0xE0&&((b[i+1]>>1)&3)===1){const br=b[i+2]>>4, sr=(b[i+2]>>2)&3; if(br!==15&&br!==0&&sr!==3) return pos+i}}
+  return pos;
+}
+let revURL=null;
+function renderRevisao(){
+  if(!livro||!livro.id){$("revCard").hidden=true; return}
+  const m=marcadores().length, d=destaques().length;
+  $("revCard").hidden=!(m+d);
+  $("revInfo").textContent=`Junta ${m} marcador${m===1?"":"es"} e ${d} frase${d===1?"":"s"} importante${d===1?"":"s"} num áudio só, para revisar rápido.`;
+}
+async function criarRevisao(){
+  const el=$("revMsg"), marcs=marcadores(), dests=destaques();
+  if(!marcs.length&&!dests.length){msg(el,"Guarde marcadores ou frases importantes primeiro.",true); return}
+  $("revBtn").disabled=true; const jan=+$("revJanela").value, anunciar=$("revAnunciar").checked;
+  try{
+    const porCap={};
+    marcs.forEach(m=>(porCap[m.cap]=porCap[m.cap]||[]).push({t:m.t,tipo:"m"}));
+    dests.forEach(d=>(porCap[d.cap]=porCap[d.cap]||[]).push({t:d.t,fim:d.fim,tipo:"d"}));
+    const clips=[];
+    for(const cap of Object.keys(porCap).map(Number).sort((a,b)=>a-b)){
+      if(!estado(cap).ok) continue;
+      msg(el,`Preparando o capítulo ${cap+1}…`);
+      const dur=await duracao(cap); if(!dur) continue;
+      const f=await legendaDe(cap), tt=f?temposDe(f,dur):null;
+      const inicioFrase=t=>{if(!tt) return Math.max(0,t-3); let k=0; for(let j=0;j<tt.length;j++){if(tt[j]<=t+0.05) k=j; else break} return Math.max(0,tt[k]-0.15)};
+      const fimPerto=(ini,alvo)=>{let e=Math.min(dur,ini+alvo); if(tt){const nx=tt.find(x=>x>=e-0.01); if(nx!=null&&nx-e<10) e=Math.min(dur,nx-0.05)} return e};
+      const lista=porCap[cap].map(x=>{
+        if(x.tipo==="d"){const ini=Math.max(0,x.t-0.15); return {ini,fim:x.fim!=null?Math.min(dur,x.fim):fimPerto(ini,12)}}
+        const ini=inicioFrase(x.t); return {ini,fim:fimPerto(ini,jan)}}).sort((a,b)=>a.ini-b.ini);
+      const juntos=[]; lista.forEach(c=>{const u=juntos[juntos.length-1]; if(u&&c.ini<=u.fim+1) u.fim=Math.max(u.fim,c.fim); else juntos.push({...c})});
+      juntos.forEach(c=>clips.push({cap,dur,...c}));
+    }
+    if(!clips.length){msg(el,"Os trechos marcados ainda não foram narrados.",true); return}
+    let semAnuncio=!anunciar;
+    const falar=async txt=>{if(semAnuncio) return null;
+      try{const fd=new FormData(); fd.append("voz","pt-BR-FranciscaNeural"); fd.append("texto",txt);
+        const r=await fetch("/testar",{method:"POST",body:fd}); if(!r.ok) throw 0; return await r.blob()}catch(e){semAnuncio=true; return null}};
+    const partes=[], intro=await falar(`Revisão de ${livro.titulo}. ${clips.length} ${clips.length===1?"trecho":"trechos"}.`); if(intro) partes.push(intro);
+    let total=0; const blobs={};
+    for(const [n,c] of clips.entries()){
+      msg(el,`Montando o trecho ${n+1} de ${clips.length}…`);
+      const an=await falar(`Trecho ${n+1}. Capítulo ${c.cap+1}.`); if(an) partes.push(an);
+      const blob=blobs[c.cap]||(blobs[c.cap]=await audioBlob(c.cap)), bps=blob.size/c.dur;
+      const a=await alinharQuadro(blob,Math.floor(c.ini*bps)), fimB=Math.ceil(c.fim*bps), b=fimB>=blob.size?blob.size:await alinharQuadro(blob,fimB); // corta sempre em quadros inteiros
+      if(b>a){partes.push(blob.slice(a,b)); total+=c.fim-c.ini}
+    }
+    const rev=new Blob(partes,{type:"audio/mpeg"});
+    if(revURL) URL.revokeObjectURL(revURL); revURL=URL.createObjectURL(rev);
+    $("revAudio").src=revURL; $("revOut").hidden=false;
+    $("revBaixar").onclick=()=>baixarBlob(rev,`VOX-revisao-${nomeArq(livro.titulo)}.mp3`);
+    msg(el,`Revisão pronta: ${clips.length} ${clips.length===1?"trecho":"trechos"}, cerca de ${total<60?Math.round(total)+" segundos":fmtDur(total)} de áudio.`+(anunciar&&semAnuncio?" Os anúncios ficaram de fora porque o servidor não respondeu.":""));
+  }catch(e){msg(el,"Não consegui montar a revisão agora. Tente de novo.",true)}
+  finally{$("revBtn").disabled=false}
+}
+$("revBtn").onclick=criarRevisao;
+$("revAudio").addEventListener("play",()=>au.pause());
+au.addEventListener("play",()=>{if(!$("revAudio").paused) $("revAudio").pause()});
+
+/* ================= páginas e metas ================= */
+function paginasPorSeg(){ // quantas páginas do livro cabem em 1 segundo de áudio
+  if(livro&&livro.paginas){const tot=livro.capitulos.reduce((a,c)=>a+c.minutos,0)*60; if(tot>0) return livro.paginas/tot}
+  return (150/60)/275; // livro sem páginas (Word): 150 palavras por minuto, 275 palavras por página
+}
+const fmtPag=p=>p<1?(p>0?"menos de 1 página":"0 páginas"):`${Math.round(p)} página${Math.round(p)===1?"":"s"}`;
+function minutosRestantes(l){
+  const p=ls.get(posKey(l.id),{cap:0,t:0});
+  const total=l.capitulos.reduce((a,c)=>a+c.minutos,0), ouvido=l.capitulos.slice(0,p.cap).reduce((a,c)=>a+c.minutos,0)+p.t/60;
+  return l.terminado?0:Math.max(0,total-ouvido)/(ls.get("speed",1)||1);
+}
+function diasAte(iso){const fim=new Date(iso+"T23:59:59"); return Math.ceil((fim-Date.now())/86400000)}
+const dataCurta=iso=>new Date(iso+"T12:00:00").toLocaleDateString("pt-BR",{weekday:"long",day:"2-digit",month:"2-digit"});
+function textoMeta(l,curto){
+  const ate=ls.get("metaL:"+l.id,null); if(!ate) return "";
+  if(l.terminado) return curto?"🎯 Meta cumprida":"🎯 Livro terminado! Meta cumprida. 🎉";
+  const rest=minutosRestantes(l), dias=diasAte(ate);
+  if(dias<=0) return curto?"🎯 Prazo passou":`🎯 O prazo (${dataCurta(ate)}) passou. Faltam ${fmtMin(rest)} de áudio para terminar.`;
+  const porDia=Math.ceil(rest/dias);
+  return curto?`🎯 ${porDia} min/dia até ${new Date(ate+"T12:00:00").toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit"})}`
+    :`🎯 Faltam ${fmtMin(rest)} de áudio. Ouça cerca de ${porDia} min por dia para terminar até ${dataCurta(ate)} (${dias} dia${dias===1?"":"s"}).`;
+}
+function renderMetaLivro(){
+  if(!livro||!livro.id){$("metaLivro").hidden=true; return}
+  $("metaLivro").hidden=false; const ate=ls.get("metaL:"+livro.id,null);
+  $("metaData").value=ate||""; $("metaData").min=diaKey(); $("metaLimpar").hidden=!ate;
+  $("metaLivroTxt").textContent=ate?textoMeta(livro,false):"Escolha uma data e o VOX calcula quanto ouvir por dia.";
+}
+$("metaData").onchange=e=>{if(!livro||!livro.id) return; if(e.target.value) ls.set("metaL:"+livro.id,e.target.value); else localStorage.removeItem("metaL:"+livro.id); renderMetaLivro()};
+$("metaLimpar").onclick=()=>{try{localStorage.removeItem("metaL:"+livro.id)}catch(e){} renderMetaLivro()};
+au.addEventListener("pause",()=>{if(livro&&livro.id) renderMetaLivro()});
+
+/* meta diária */
+function renderMetaDia(s){
+  const meta=+ls.get("metaDia",0), hoje=(s.dias[diaKey()]||0)/60;
+  $("metaSel").value=String(meta);
+  const pHoje=s.pags[diaKey()]||0, p7=[...Array(7)].reduce((a,_,i)=>{const d=new Date(); d.setDate(d.getDate()-i); return a+(s.pags[diaKey(d)]||0)},0);
+  $("stHojePg").textContent=`≈ ${fmtPag(pHoje)}`; $("stSemanaPg").textContent=`≈ ${fmtPag(p7)}`;
+  const pTot=Object.values(s.pags).reduce((a,b)=>a+b,0);
+  if(pTot>=1) $("stTotal").textContent+=` · o equivalente a ${fmtPag(pTot)}`;
+  $("metaBox").classList.toggle("on",!!meta);
+  if(!meta){$("metaTxt").textContent="Defina uma meta para acompanhar o dia."; return}
+  const pct=Math.min(100,100*hoje/meta), ok=hoje>=meta;
+  $("metaFill").style.width=pct+"%"; $("metaBar").setAttribute("aria-valuenow",Math.round(pct)); $("metaBox").classList.toggle("ok",ok);
+  $("metaTxt").textContent=ok?`Meta de hoje cumprida! ${Math.round(hoje)} de ${meta} min 🎉`:`${Math.floor(hoje)} de ${meta} min hoje · faltam ${Math.ceil(meta-hoje)} min`;
+}
+$("metaSel").onchange=e=>{ls.set("metaDia",+e.target.value); renderStats()};
+function checarMeta(s){
+  const meta=+ls.get("metaDia",0); if(!meta) return;
+  if((s.dias[diaKey()]||0)>=meta*60&&ls.get("metaAvisada","")!==diaKey()){ls.set("metaAvisada",diaKey()); aviso(`Meta de ${meta} min de hoje cumprida! 🎉`)}
+}
 
 mostrarBiblioteca();
 
