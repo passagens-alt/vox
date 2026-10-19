@@ -8,6 +8,7 @@ CAB = re.compile(r"^\s*(cap[íi]tulo|chapter|parte|livro|pr[óo]logo|ep[íi]logo
 NUM_PAG = re.compile(r"^\W*(p[áa]g(ina)?\.?\s*)?(\d{1,4}|[ivxlcdm]{1,7})(\s*(/|de|of)\s*\d{1,4})?\W*$", re.I)
 MARCA_NOTA = re.compile(r"^\s*[\d*†‡]{1,3}\s*$")
 FORMATOS = (".pdf", ".epub", ".docx")
+CENA = re.compile(r"^\s*(?:(?:[*⁂#~•·o]\s*){3,7}|[*⁂#§]|[—–_-]{3,}|[—–-]\s*[xX]\s*[—–-])\s*$")  # "* * *", "⁂", "———": mudança de cena
 
 
 def palavras(t):
@@ -27,6 +28,9 @@ def limpar(t, paragrafos=False):
     for l in linhas:
         if not l:
             continue
+        if CENA.match(l):  # mudança de cena vira uma marca própria, com pausa maior na narração
+            saida += ["¶", "§", "¶"]
+            continue
         if l[0] in "—–":
             l = "¶" + l[0] + " " + l[1:].lstrip()
         saida.append(l)
@@ -40,7 +44,7 @@ def limpar(t, paragrafos=False):
 
 
 def sem_marcas(t):
-    return t.replace(" ¶", " ").replace("¶", "")
+    return t.replace(" ¶§ ¶", " ").replace(" ¶", " ").replace("¶", "").replace("§", "")
 
 
 def segmentar(texto):
@@ -216,6 +220,7 @@ def _por_tamanho(texto, alvo=3500):
 def _ler_paginado(doc, limpar_on):
     paginas, removidos = _paginas_doc(doc, limpar_on)
     titulo = ((doc.metadata or {}).get("title") or "").strip()
+    _ler_paginado.autor = ((doc.metadata or {}).get("author") or "").strip()
     try:
         toc = doc.get_toc(simple=True)
     except Exception:
@@ -228,6 +233,7 @@ def _ler_docx(dados):
     import docx  # python-docx
     d = docx.Document(io.BytesIO(dados))
     titulo = (d.core_properties.title or "").strip()
+    _ler_docx.autor = (d.core_properties.author or "").strip()
     pars = []  # (nível do título ou 0, texto)
     for p in d.paragraphs:
         t = p.text.strip()
@@ -259,15 +265,17 @@ def _ler_docx(dados):
 def ler(dados, nome, limpar_on=True):
     """Devolve dict: titulo, paginas (int ou None), caps [(titulo, texto, pag_ini, pag_fim)], pdf (bytes|None), removidos."""
     ext = "." + nome.lower().rsplit(".", 1)[-1] if "." in nome else ""
-    pdf, npag, removidos = None, None, {}
+    pdf, npag, removidos, autor = None, None, {}, ""
     if ext == ".docx":
         titulo, caps = _ler_docx(dados)
+        autor = getattr(_ler_docx, "autor", "")
     elif ext in (".pdf", ".epub"):
         with pymupdf.open(stream=dados, filetype=ext[1:]) as doc:
             if doc.needs_pass:
                 raise ValueError("protegido por senha")
             titulo, paginas, caps, removidos = _ler_paginado(doc, limpar_on)
             npag = len(paginas)
+            autor = getattr(_ler_paginado, "autor", "")
             if ext == ".epub":
                 pdf = doc.convert_to_pdf()  # para mostrar capa e páginas no navegador
     else:
@@ -276,7 +284,9 @@ def ler(dados, nome, limpar_on=True):
     caps = [c for c in caps if palavras(c[1]) > 3]
     if len(titulo) <= 2 or titulo.lower().startswith(("untitled", "microsoft word", "sem título")):
         titulo = re.sub(r"\.(pdf|epub|docx)$", "", nome, flags=re.I)
-    return {"titulo": titulo, "paginas": npag, "caps": caps, "pdf": pdf, "removidos": removidos}
+    if re.fullmatch(r"(?i)(user|usuario|usuário|admin|administrator|administrador|owner|unknown|autor|python-docx|microsoft office user)\s*\d*", autor or "") or len(autor) > 80:
+        autor = ""  # nomes genéricos que o Word põe sozinho
+    return {"titulo": titulo, "autor": autor, "paginas": npag, "caps": caps, "pdf": pdf, "removidos": removidos}
 
 
 # ---------------------------------------------------------------- pronúncias

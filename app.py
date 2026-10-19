@@ -5,11 +5,13 @@ Vozes premium (opcional): defina OPENAI_API_KEY e/ou ELEVENLABS_API_KEY no ambie
 Rodar:  pip install -r requirements.txt  &&  python app.py   ->  http://localhost:5000
 """
 import asyncio, io, json, os, re, tempfile, threading, unicodedata, urllib.request, uuid, zipfile
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import edge_tts
 from flask import Flask, abort, jsonify, render_template, request, send_file
 import leitura
 from leitura import palavras, pronunciar, segmentar, sem_marcas
+from numeros import falar_numeros
 
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 80 * 1024 * 1024
@@ -124,12 +126,16 @@ def frases(t):
     return out
 
 
-def unidades(texto, voz, voz_dialogo, pron):
-    """Divide o capítulo em frases: o que aparece na tela (s), o que é falado (f), a voz (v) e se abre parágrafo (p)."""
+def unidades(texto, voz, voz_dialogo, pron, pausa_par=0.0):
+    """Divide o capítulo em frases: o que aparece na tela (s), o que é falado (f), a voz (v) e se abre parágrafo (p).
+    Mudanças de cena ("* * *") viram uma pausa longa; com pausa_par, cada parágrafo novo ganha uma pausa antes."""
     out = []
     for par in texto.split("¶"):
         par = par.strip()
         if not par:
+            continue
+        if par == "§":
+            out.append({"s": "* * *", "f": "", "p": True, "cena": 1, "pausa": 1.6})
             continue
         primeira = True
         if voz_dialogo and voz_dialogo != voz:
@@ -145,25 +151,35 @@ def unidades(texto, voz, voz_dialogo, pron):
             if len(falas) != len(telas):
                 falas, telas = [seg], [mostra]
             for f, t in zip(falas, telas):
-                fala = sem_marcas(pronunciar(f, pron)).strip()
+                fala = falar_numeros(sem_marcas(pronunciar(f, pron))).strip()
                 if fala:
-                    out.append({"v": v, "s": t, "f": fala, "p": primeira})
+                    u = {"v": v, "s": t, "f": fala, "p": primeira}
+                    if primeira and pausa_par and out and "pausa" not in out[-1]:
+                        u["antes"] = pausa_par
+                    out.append(u)
                     primeira = False
     return out
 
 
-def blocos_de(unids, limite_por_voz):
-    """Junta frases seguidas da mesma voz em blocos de até ~3000 letras."""
-    bl = []
-    for u in unids:
-        lim = limite_por_voz(u["v"])
-        if bl and bl[-1]["v"] == u["v"] and len(bl[-1]["texto"]) + len(u["f"]) + 1 <= lim:
-            u["pos"] = len(bl[-1]["texto"]) + 1
-            bl[-1]["texto"] += " " + u["f"]; bl[-1]["us"].append(u)
-        else:
-            u["pos"] = 0
-            bl.append({"v": u["v"], "texto": u["f"], "us": [u]})
-    return bl
+GENERICOS = re.compile(r"^(páginas\s+\d|parte\s+\d+$|início$)", re.I)
+normal = lambda t: re.sub(r"[^a-z0-9]+", " ", unicodedata.normalize("NFKD", t.lower()).encode("ascii", "ignore").decode()).strip()
+
+
+def montar(cap, job, primeiro):
+    """Frases do capítulo + abertura do livro (título e autor) e o nome do capítulo, quando pedidos."""
+    voz, pron = job["voz"], job["pron"]
+    extra = []
+    if primeiro and job.get("abertura"):
+        extra.append({"v": voz, "s": job["titulo"], "f": falar_numeros(pronunciar(job["titulo"], pron)) + ".", "p": True, "x": 1})
+        if job.get("autor"):
+            extra.append({"v": voz, "s": "de " + job["autor"], "f": "de " + pronunciar(job["autor"], pron) + ".", "p": True, "x": 1})
+        extra.append({"s": None, "f": "", "p": False, "pausa": 1.4})
+    tit = (cap.get("titulo") or "").strip()
+    inicio_txt = normal(cap["texto"][:len(tit) + 40])
+    if job.get("anunciar") and tit and not GENERICOS.match(tit) and not inicio_txt.startswith(normal(tit)[:40]):
+        extra.append({"v": voz, "s": tit, "f": falar_numeros(pronunciar(tit, pron)) + ".", "p": True, "x": 1})
+        extra.append({"s": None, "f": "", "p": False, "pausa": 0.9})
+    return extra + unidades(cap["texto"], voz, job.get("voz_dialogo"), pron, job.get("pausa_par", 0.0))
 
 
 def alinhar(bloco, marcas, inicio):
@@ -180,29 +196,85 @@ def alinhar(bloco, marcas, inicio):
         u["t"] = round(inicio + pos[k][1], 2) if k < len(pos) else None
 
 
+def blocos_de(unids, limite_por_voz):
+    """Junta frases seguidas da mesma voz em blocos de até ~3000 letras. Pausas viram blocos próprios."""
+    bl = []
+    for u in unids:
+        if "pausa" in u:
+            bl.append({"pausa": u["pausa"], "us": [u]})
+            continue
+        lim = limite_por_voz(u["v"])
+        ult = bl[-1] if bl else None
+        if ult and "pausa" not in ult and ult["v"] == u["v"] and not u.get("antes") and len(ult["texto"]) + len(u["f"]) + 1 <= lim:
+            u["pos"] = len(ult["texto"]) + 1
+            ult["texto"] += " " + u["f"]; ult["us"].append(u)
+        else:
+            u["pos"] = 0
+            bl.append({"v": u["v"], "texto": u["f"], "us": [u], "antes": u.get("antes", 0)})
+    return bl
+
+
+SILENCIO = b"\xFF\xF3\x64\xC0" + b"\x00" * 140  # 24 ms de silêncio no mesmo formato das vozes do Edge
+PARALELO = int(os.environ.get("VOX_PARALELO", "3"))
+
+
+def silencio(seg):
+    return SILENCIO * max(1, round(seg / 0.024))
+
+
+def _bloco(bl, vel):
+    mem = io.BytesIO()
+    marcas = narrar_trecho(bl["texto"], bl["v"], vel, mem)
+    return mem.getvalue(), marcas
+
+
+def narrar_unidades(unids, job, arquivo, progresso=lambda f: None):
+    """Narra as frases (vários blocos ao mesmo tempo), põe as pausas e marca o segundo em que cada frase começa."""
+    partes = blocos_de(unids, lambda v: 3800 if MOTOR.get(v) == "openai" else 3000)
+    so_edge = all(MOTOR.get(u.get("v") or VOZ_PADRAO, "edge") == "edge" for u in unids)
+    falar = [k for k, bl in enumerate(partes) if "pausa" not in bl]
+    feitos, prontos = {}, 0
+    with ThreadPoolExecutor(max_workers=max(1, PARALELO)) as ex:
+        futs = {ex.submit(_bloco, partes[k], job["velocidade"]): k for k in falar}
+        for fut in as_completed(futs):
+            feitos[futs[fut]] = fut.result()
+            prontos += 1
+            progresso(prontos / max(1, len(falar)))
+    tempo_ok = so_edge
+    for k, bl in enumerate(partes):
+        if "pausa" in bl:
+            for u in bl["us"]:
+                u["t"] = round(arquivo.tell() / EDGE_BYTES_POR_SEG, 2) if tempo_ok else None
+            if so_edge:
+                arquivo.write(silencio(bl["pausa"]))
+            continue
+        if bl.get("antes") and so_edge:
+            arquivo.write(silencio(bl["antes"]))
+        dados, marcas = feitos[k]
+        inicio = arquivo.tell() / EDGE_BYTES_POR_SEG
+        arquivo.write(dados)
+        try:  # a sincronia do texto nunca pode atrapalhar a narração
+            if tempo_ok and isinstance(marcas, list) and marcas:
+                alinhar(bl, marcas, inicio)
+            else:
+                tempo_ok = False
+        except Exception:
+            tempo_ok = False
+    return [{"s": u["s"], "t": u.get("t"),
+             **({"p": 1} if u.get("p") else {}), **({"x": 1} if u.get("x") else {}), **({"c": 1} if u.get("cena") else {})}
+            for u in unids if u.get("s")]
+
+
 def trabalhar(job_id):
     job = JOBS[job_id]
     try:
         for n, cap in enumerate(job["capitulos"]):
             cap["status"] = "narrando"
-            unids = unidades(cap["texto"], job["voz"], job.get("voz_dialogo"), job["pron"])
-            partes = blocos_de(unids, lambda v: 3800 if MOTOR.get(v) == "openai" else 3000)
+            unids = montar(cap, job, n == 0)
             caminho = os.path.join(PASTA, f"{job_id}-{n:03d}.mp3")
-            tempo_ok = True  # o tempo de início de cada bloco só é exato enquanto tudo vem do Edge
             with open(caminho, "wb") as mp3:
-                for i, bl in enumerate(partes, 1):
-                    inicio = mp3.tell() / EDGE_BYTES_POR_SEG
-                    marcas = narrar_trecho(bl["texto"], bl["v"], job["velocidade"], mp3)
-                    try:  # a sincronia do texto nunca pode atrapalhar a narração
-                        if tempo_ok and isinstance(marcas, list) and marcas:
-                            alinhar(bl, marcas, inicio)
-                        else:
-                            tempo_ok = False
-                    except Exception:
-                        tempo_ok = False
-                    cap["progresso"] = round(100 * i / len(partes))
-            cap["legenda"] = [{"s": u["s"], "t": u.get("t"), **({"p": 1} if u["p"] else {})} for u in unids]
-            cap.update(status="pronto", caminho=caminho)
+                cap["legenda"] = narrar_unidades(unids, job, mp3, lambda f: cap.update(progresso=round(100 * f)))
+            cap.update(status="pronto", caminho=caminho, progresso=100)
         job["status"] = "pronto"
     except Exception as e:  # noqa: BLE001
         job.update(status="erro", erro=str(e))
@@ -214,6 +286,20 @@ def publico(job):
         "capitulos": [{"titulo": c["titulo"], "status": c["status"], "progresso": c["progresso"],
                        "minutos": c["minutos"], "pag_ini": c["pag_ini"], "pag_fim": c["pag_fim"]} for c in job["capitulos"]],
     }
+
+
+def opcoes(form):
+    """Voz, velocidade, pronúncias, pausas, abertura e anúncio dos capítulos, vindos do formulário."""
+    voz = form.get("voz", VOZ_PADRAO)
+    vd = form.get("voz_dialogo")
+    return {"voz": voz if voz in MOTOR else VOZ_PADRAO,
+            "voz_dialogo": vd if vd in MOTOR else None,
+            "velocidade": max(-50, min(100, int(form.get("velocidade", "0") or 0))),
+            "pron": ler_pron(form.get("pron")),
+            "pausa_par": 0.7 if form.get("pausas") == "longas" else 0.0,
+            "abertura": form.get("abertura") == "1",
+            "anunciar": form.get("anunciar") == "1",
+            "autor": (form.get("autor") or "").strip()[:120]}
 
 
 def ler_pron(bruto):
@@ -276,7 +362,7 @@ def analisar():
     ANALISES[aid] = r
     while len(ANALISES) > 12:
         ANALISES.pop(next(iter(ANALISES)))
-    return jsonify(analise=aid, titulo=r["titulo"], paginas=r["paginas"], removidos=r["removidos"],
+    return jsonify(analise=aid, titulo=r["titulo"], autor=r.get("autor", ""), paginas=r["paginas"], removidos=r["removidos"],
                    tem_pdf=bool(r["pdf"]),
                    capitulos=[{"titulo": t, "minutos": max(1, round(palavras(x) / 150)), "pag_ini": a, "pag_fim": b}
                               for t, x, a, b in r["caps"]])
@@ -296,7 +382,7 @@ def texto_capitulo(aid, n):
     r = ANALISES.get(aid) or abort(404)
     if n >= len(r["caps"]):
         abort(404)
-    t = r["caps"][n][1].replace(" ¶", "\n")
+    t = r["caps"][n][1].replace(" ¶§ ¶", "\n* * *\n").replace(" ¶", "\n")
     return jsonify(texto=t[:1500], total=len(t))
 
 
@@ -313,9 +399,8 @@ def converter():
             return jsonify(erro=str(e)), 400
     if not r["caps"]:
         return jsonify(erro="Este arquivo não tem texto selecionável (provavelmente é escaneado)."), 400
-    voz = request.form.get("voz", VOZ_PADRAO)
-    voz = voz if voz in MOTOR else VOZ_PADRAO
-    velocidade = max(-50, min(100, int(request.form.get("velocidade", "0") or 0)))
+    op = opcoes(request.form)
+    velocidade = op["velocidade"]
     escolhidos = request.form.get("capitulos")  # "1,3,5" (opcional)
     job_id = uuid.uuid4().hex
     lista = [{"titulo": t, "texto": x, "status": "na fila", "progresso": 0, "pag_ini": a, "pag_fim": b,
@@ -323,9 +408,68 @@ def converter():
     if escolhidos:
         idx = {int(i) for i in escolhidos.split(",") if i.strip().isdigit()}
         lista = [c for i, c in enumerate(lista) if i in idx] or lista
-    JOBS[job_id] = {"titulo": r["titulo"], "status": "narrando", "voz": voz, "velocidade": velocidade,
-                    "capitulos": lista, "paginas": r["paginas"], "pron": ler_pron(request.form.get("pron")),
-                    "voz_dialogo": request.form.get("voz_dialogo") if request.form.get("voz_dialogo") in MOTOR else None}
+    titulo = (request.form.get("titulo") or "").strip()[:200] or r["titulo"]
+    JOBS[job_id] = {"titulo": titulo, "status": "narrando", "capitulos": lista, "paginas": r["paginas"], **op}
+    threading.Thread(target=trabalhar, args=(job_id,), daemon=True).start()
+    return jsonify(id=job_id, **publico(JOBS[job_id]))
+
+
+PREVIAS = {}
+
+
+@app.post("/previa")
+def previa():
+    """Narra cerca de 1 minuto do livro com a voz, as pronúncias e os ajustes escolhidos, antes de gerar tudo."""
+    r = ANALISES.get(request.form.get("analise", ""))
+    if not r:
+        return jsonify(erro="Envie o livro de novo (o site reiniciou)."), 400
+    n = int(request.form.get("capitulo", "0") or 0)
+    if not 0 <= n < len(r["caps"]):
+        n = 0
+    op = opcoes(request.form)
+    job = {"titulo": (request.form.get("titulo") or "").strip()[:200] or r["titulo"], **op}
+    cap = {"titulo": r["caps"][n][0], "texto": r["caps"][n][1]}
+    unids, cont = [], 0
+    for u in montar(cap, job, request.form.get("primeiro") == "1"):
+        unids.append(u)
+        if not u.get("x") and u.get("f"):
+            cont += palavras(u["f"])
+        if cont >= 140:  # ~1 minuto de fala
+            break
+    mem = io.BytesIO()
+    try:
+        leg = narrar_unidades(unids, job, mem)
+    except Exception:
+        return jsonify(erro="Não consegui gerar a prévia agora. Tente de novo em instantes."), 502
+    pid = uuid.uuid4().hex
+    PREVIAS[pid] = mem.getvalue()
+    while len(PREVIAS) > 20:
+        PREVIAS.pop(next(iter(PREVIAS)))
+    return jsonify(id=pid, capitulo=cap["titulo"], frases=leg)
+
+
+@app.get("/previa/<pid>")
+def previa_audio(pid):
+    dados = PREVIAS.get(pid) or abort(404)
+    return send_file(io.BytesIO(dados), mimetype="audio/mpeg", conditional=True)
+
+
+@app.post("/refazer")
+def refazer():
+    """Gera de novo um capítulo só, a partir do texto corrigido."""
+    texto = (request.form.get("texto") or "").strip()
+    if palavras(texto) < 2:
+        return jsonify(erro="O texto do capítulo está vazio."), 400
+    if len(texto) > 200_000:
+        return jsonify(erro="O texto é grande demais para um capítulo."), 400
+    op = opcoes(request.form)
+    texto = leitura.limpar(texto, paragrafos=True)
+    cap = {"titulo": (request.form.get("titulo") or "Capítulo").strip()[:200], "texto": texto, "status": "na fila",
+           "progresso": 0, "pag_ini": None, "pag_fim": None,
+           "minutos": max(1, round(palavras(texto) / (150 * (1 + op["velocidade"] / 100))))}
+    job_id = uuid.uuid4().hex
+    JOBS[job_id] = {"titulo": (request.form.get("livro") or "").strip()[:200], "status": "narrando",
+                    "capitulos": [cap], "paginas": None, **{**op, "abertura": False}}
     threading.Thread(target=trabalhar, args=(job_id,), daemon=True).start()
     return jsonify(id=job_id, **publico(JOBS[job_id]))
 
@@ -393,7 +537,7 @@ def testar():
     """Fala um texto curto (com as pronúncias aplicadas) para conferir como ficou."""
     voz = request.form.get("voz", VOZ_PADRAO)
     voz = voz if voz in MOTOR else VOZ_PADRAO
-    texto = sem_marcas(pronunciar((request.form.get("texto") or "")[:300], ler_pron(request.form.get("pron"))))
+    texto = falar_numeros(sem_marcas(pronunciar((request.form.get("texto") or "")[:300], ler_pron(request.form.get("pron")))))
     if not texto.strip():
         return jsonify(erro="Escreva algo para testar."), 400
     chave = (voz, texto)

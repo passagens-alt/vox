@@ -327,6 +327,26 @@ select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(-
 .ml-txt{margin:0;font-size:.88rem;color:var(--muted);max-width:52ch}
 .meta-me{color:var(--gold)!important}
 @media (max-width:620px){.ml-row{justify-content:center}.meta-livro{text-align:center;align-items:center}}
+/* abertura, pausas e prévia */
+.abert{display:flex;flex-direction:column;gap:12px;margin-top:20px;border-top:1px solid var(--line);padding-top:18px}
+.abert h3,.previa-box h3{font-family:var(--display);font-weight:400;font-size:1.1rem;margin:0}
+.abert-campos{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;padding-left:32px}
+.abert-campos input{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:9px 10px;width:100%;min-width:0}
+@media (max-width:520px){.abert-campos{padding-left:0}}
+.previa-box{margin-top:22px;border-top:1px solid var(--line);padding-top:18px;display:flex;flex-direction:column;gap:10px;align-items:flex-start}
+#prevOut{display:flex;flex-direction:column;gap:8px;width:100%}
+#prevOut audio{width:100%}
+.ghost:disabled{opacity:.5;cursor:default}
+/* corrigir capítulo */
+.editw{display:flex;flex-direction:column;gap:10px}
+.edit-ta{font:inherit;font-family:var(--read);font-size:.98rem;line-height:1.6;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px;width:100%;min-height:200px;resize:vertical}
+.edit-row{align-items:flex-end;justify-content:flex-start}
+.edit-row .grow{flex:1}
+.edit-row select{max-width:220px}
+.ib.fix svg{width:15px;height:15px}
+/* texto: abertura e mudança de cena */
+.fr.extra{font-style:italic;color:var(--muted)}
+.leitura p:has(.cena){text-align:center;letter-spacing:.4em;color:var(--muted)}
 /* tocador */
 .player{position:fixed;left:0;right:0;bottom:0;padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));background:color-mix(in srgb,var(--card) 92%,transparent);backdrop-filter:blur(10px);border-top:1px solid var(--line)}
 .pin{max-width:1000px;margin:0 auto;display:grid;grid-template-columns:auto auto minmax(0,1fr) auto;gap:16px;align-items:center}
@@ -438,13 +458,33 @@ select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(-
       <label class="f" for="vel">Velocidade
         <select id="vel"><option value="-20">Mais devagar</option><option value="-10">Um pouco devagar</option><option value="0" selected>Normal</option><option value="10">Um pouco mais rápida</option><option value="25">Rápida</option></select>
       </label>
+      <label class="f" for="pausas">Pausas entre parágrafos
+        <select id="pausas"><option value="normais">Normais</option><option value="longas">Mais longas</option></select>
+      </label>
+    </div>
+    <div class="abert">
+      <h3>Como um audiolivro de verdade</h3>
+      <label class="tg" for="abertura"><input type="checkbox" id="abertura" checked><span>Ler o título e o autor no começo<small>Confira como estão escritos: é assim que a voz vai ler.</small></span></label>
+      <div class="abert-campos" id="abertCampos">
+        <label class="f" for="abTitulo">Título<input id="abTitulo" maxlength="200"></label>
+        <label class="f" for="abAutor">Autor<input id="abAutor" maxlength="120" placeholder="Nome de quem escreveu"></label>
+      </div>
+      <label class="tg" for="anunciar"><input type="checkbox" id="anunciar" checked><span>Anunciar o nome de cada capítulo<small>“Capítulo quatro.” antes de começar. Não repete quando o nome já está no texto.</small></span></label>
+      <p class="fxnote">Mudanças de cena (“* * *”) ganham uma pausa maior. Números, datas, horas, dinheiro e frações são lidos por extenso: “R$ 10,50” vira “dez reais e cinquenta centavos”.</p>
     </div>
     <div class="pron">
       <h3>Pronúncias</h3>
       <p class="sub" style="margin:0">Ensine como falar nomes, siglas e palavras difíceis. Fica salvo neste aparelho para os próximos livros.</p>
       <div class="prows" id="prows"></div>
       <button type="button" class="ghost" id="addPron">+ Adicionar palavra</button>
-      <p class="pdef">Já incluído: Sr., Sra., Dr., Dra., Prof., nº, Av., etc.</p>
+      <p class="pdef">Já incluído: Sr., Sra., Dr., Dra., Prof., nº, Av., etc. Números são lidos por extenso sozinhos.</p>
+    </div>
+    <div class="previa-box">
+      <h3>Ouça antes de gerar</h3>
+      <p class="sub" style="margin:0">Cerca de 1 minuto do começo do primeiro capítulo marcado, com a voz, as pronúncias e os ajustes escolhidos.</p>
+      <button type="button" class="ghost" id="prevBtn">▶ Ouvir prévia de 1 minuto</button>
+      <p class="msg" id="prevMsg" hidden></p>
+      <div id="prevOut" hidden><audio id="prevAudio" controls preload="none"></audio><p class="pv-l" id="prevTxt"></p></div>
     </div>
   </section>
 
@@ -654,6 +694,7 @@ async function escolher(f){
   const j=r.j;
   if(!j.capitulos.length){msg($("upMsg"),"Este arquivo não tem texto selecionável (provavelmente é escaneado). Passe por OCR antes.",true);return}
   analise=j.analise; analiseCaps=j.capitulos; analiseInfo={titulo:j.titulo,paginas:j.paginas};
+  $("abTitulo").value=j.titulo||""; $("abAutor").value=j.autor||""; $("prevOut").hidden=true; msg($("prevMsg"),"");
   livro={titulo:j.titulo,paginas:j.paginas,capitulos:j.capitulos,salvos:[]};
   pdfBlob=null;
   if(/\.pdf$/i.test(f.name)) pdfBlob=f;
@@ -763,14 +804,15 @@ $("gerar").onclick=async()=>{
   if(!await acordar($("genMsg"))){$("gerar").disabled=false;return}
   msg($("genMsg"),"Enviando…");
   const envio=comPdf=>{const fd=new FormData(); if(comPdf) fd.append("pdf",file); else fd.append("analise",analise||"");
-    fd.append("voz",document.querySelector("input[name=voz]:checked").value);
-    fd.append("velocidade",$("vel").value); fd.append("capitulos",marcados.join(",")); fd.append("pron",JSON.stringify(prons()));
-    fd.append("limpar",$("limpar").checked?"1":"0"); fd.append("voz_dialogo",$("vozDialogo").value);
+    addOpcoes(fd,opcoesTela()); fd.append("capitulos",marcados.join(","));
+    fd.append("limpar",$("limpar").checked?"1":"0");
     return fetch("/converter",{method:"POST",body:fd});};
   let r,j; try{r=await envio(false); if(r.status===400){r=await envio(true)} j=await r.json();}
   catch(e){msg($("genMsg"),"O servidor não respondeu. Espere um minuto e tente de novo.",true);$("gerar").disabled=false;return}
   if(!r.ok){msg($("genMsg"),j.erro,true);$("gerar").disabled=false;return}
-  livro={id:j.id,job:j.id,titulo:j.titulo,paginas:analiseInfo.paginas,criado:Date.now(),salvos:[],
+  {const o=opcoesTela(); var opcoesLivro={voz:o.voz,voz_dialogo:o.voz_dialogo,velocidade:o.velocidade,pausas:o.pausas,anunciar:o.anunciar==="1",autor:o.autor}}
+  $("prevAudio").pause();
+  livro={id:j.id,job:j.id,titulo:j.titulo,paginas:analiseInfo.paginas,criado:Date.now(),salvos:[],opcoes:opcoesLivro,
     capitulos:j.capitulos.map(c=>({titulo:c.titulo,minutos:c.minutos,pag_ini:c.pag_ini,pag_fim:c.pag_fim})),
     capa:capaBlob||null,pdf:pdfBlob};
   try{await idb.put("livros",livro); navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}
@@ -817,10 +859,12 @@ function renderCaps(){
     livro.capitulos.forEach((c,i)=>{const li=document.createElement("li"); li.className="ch"; li.id="c"+i;
       li.innerHTML=`<span></span><span class="num">${i+1}</span><div class="t" role="button" tabindex="0" aria-expanded="false" title="Ver prévia"><div></div><small>${c.minutos} min · <span class="pv-hint">prévia</span></small><div class="pb"><i></i></div></div>
         <div class="acts"><span class="pill"></span><button class="ib play" aria-label="Ouvir"><svg viewBox="0 0 24 24">${PLAY}</svg></button>
-        <a class="ib dl" aria-label="Baixar MP3"><svg viewBox="0 0 24 24">${DL}</svg></a></div>`;
+        <a class="ib dl" aria-label="Baixar MP3"><svg viewBox="0 0 24 24">${DL}</svg></a>
+        <button class="ib fix" aria-label="Corrigir o texto e gerar este capítulo de novo" title="Corrigir e gerar de novo"><svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.8 9.94l-3.75-3.75zM20.7 7.04a1 1 0 0 0 0-1.41l-2.33-2.33a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75z"/></svg></button></div>`;
       li.querySelector(".t div").textContent=c.titulo;
       li.querySelector(".play").onclick=()=>tocar(i);
       li.querySelector(".dl").onclick=e=>baixar(e,i);
+      li.querySelector(".fix").onclick=()=>corrigir(li,i);
       const tt=li.querySelector(".t"); tt.onclick=()=>previa(li,i); tt.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault(); previa(li,i)}};
       ol.appendChild(li);});
     icons();}
@@ -1298,7 +1342,7 @@ async function mostrarLeitura(i){
   if(!f){box.innerHTML='<p class="empty">O texto deste capítulo aparece aqui quando ele terminar de ser narrado. Livros gerados antes desta atualização não têm o texto: envie o livro de novo para gerar com ele.</p>'; return}
   legAtual=f; let p=null;
   legSpans=f.map((u,k)=>{if(u.p||!p){p=document.createElement("p"); box.appendChild(p)}
-    const s=document.createElement("span"); s.className="fr"; s.textContent=u.s+" "; s.dataset.k=k; p.appendChild(s); return s});
+    const s=document.createElement("span"); s.className="fr"+(u.x?" extra":"")+(u.c?" cena":""); s.textContent=u.s+" "; s.dataset.k=k; p.appendChild(s); return s});
   calcTempos(); seguir(true); marcarImp();
 }
 function calcTempos(){
@@ -1609,6 +1653,97 @@ $("metaSel").onchange=e=>{ls.set("metaDia",+e.target.value); renderStats()};
 function checarMeta(s){
   const meta=+ls.get("metaDia",0); if(!meta) return;
   if((s.dias[diaKey()]||0)>=meta*60&&ls.get("metaAvisada","")!==diaKey()){ls.set("metaAvisada",diaKey()); aviso(`Meta de ${meta} min de hoje cumprida! 🎉`)}
+}
+
+
+/* ================= opções de narração (abertura, capítulos, pausas) ================= */
+const opcG=Object.assign({pausas:"normais",abertura:true,anunciar:true},ls.get("opcGeracao",{}));
+$("pausas").value=opcG.pausas; $("abertura").checked=opcG.abertura; $("anunciar").checked=opcG.anunciar;
+function guardarOpc(){ls.set("opcGeracao",{pausas:$("pausas").value,abertura:$("abertura").checked,anunciar:$("anunciar").checked}); $("abertCampos").hidden=!$("abertura").checked}
+["pausas","abertura","anunciar"].forEach(id=>$(id).addEventListener("change",guardarOpc)); guardarOpc();
+function opcoesTela(){
+  return {voz:document.querySelector("input[name=voz]:checked").value, voz_dialogo:$("vozDialogo").value, velocidade:$("vel").value,
+    pron:JSON.stringify(prons()), pausas:$("pausas").value, abertura:$("abertura").checked?"1":"0", anunciar:$("anunciar").checked?"1":"0",
+    titulo:$("abTitulo").value.trim(), autor:$("abAutor").value.trim()};
+}
+function addOpcoes(fd,o){Object.entries(o).forEach(([k,v])=>fd.append(k,v??""))}
+
+/* ================= prévia de 1 minuto ================= */
+$("prevBtn").onclick=async()=>{
+  const el=$("prevMsg"), cap=[...document.querySelectorAll(".ch .chk")].findIndex(c=>c.checked);
+  if(cap<0){msg(el,"Marque pelo menos um capítulo para ouvir a prévia.",true); return}
+  $("prevBtn").disabled=true;
+  try{
+    if(!await acordar(el)) return;
+    msg(el,"Gerando 1 minuto do seu livro… leva alguns segundos.");
+    const fd=new FormData(); fd.append("analise",analise||""); fd.append("capitulo",cap); fd.append("primeiro","1"); addOpcoes(fd,opcoesTela());
+    let r,j; try{r=await fetch("/previa",{method:"POST",body:fd}); j=await r.json()}catch(e){msg(el,"O servidor não respondeu. Tente de novo em instantes.",true); return}
+    if(!r.ok){msg(el,j.erro||"Não consegui gerar a prévia.",true); return}
+    const a=$("prevAudio"); a.src="/previa/"+j.id; $("prevOut").hidden=false; au.pause(); a.play().catch(()=>{});
+    $("prevTxt").textContent=j.frases.map(u=>u.s).join(" ");
+    msg(el,`Prévia de “${j.capitulo}”. Se gostou, toque em Gerar audiolivro. Se algo soou errado, mude a voz ou ensine a pronúncia abaixo e ouça de novo.`);
+  } finally {$("prevBtn").disabled=false}
+};
+
+/* ================= corrigir e gerar de novo um capítulo ================= */
+function opcoesVoz(sel,atual){
+  sel.innerHTML=""; document.querySelectorAll("input[name=voz]").forEach(inp=>{const o=document.createElement("option"); o.value=inp.value;
+    o.textContent=inp.closest("label").querySelector(".vt b").textContent; sel.appendChild(o)});
+  if(atual&&[...sel.options].some(o=>o.value===atual)) sel.value=atual;
+}
+function textoEditavel(f){
+  if(!f) return ""; const pars=[]; let atual=null;
+  f.forEach(u=>{if(u.x) return; if(u.c){pars.push("* * *"); atual=null; return}
+    if(u.p||!atual){atual=[]; pars.push(atual)} atual.push(u.s)});
+  return pars.map(p=>Array.isArray(p)?p.join(" "):p).join("\n\n");
+}
+async function corrigir(li,i){
+  const old=li.querySelector(".editw"); if(old){old.remove(); return}
+  const box=document.createElement("div"); box.className="prev editw";
+  box.innerHTML=`<p class="fxnote">Corrija o texto e gere só este capítulo de novo. Um parágrafo por linha (com uma linha em branco entre eles); “* * *” sozinho numa linha marca mudança de cena. As pronúncias e os números por extenso são aplicados de novo.</p>
+    <textarea class="edit-ta" rows="10" aria-label="Texto do capítulo"></textarea>
+    <div class="row2 edit-row"><label class="f">Voz<select class="edit-voz"></select></label><span class="grow"></span><button class="ghost edit-cancel">Cancelar</button><button class="go edit-go">Gerar este capítulo de novo</button></div>
+    <p class="msg" hidden></p>`;
+  li.appendChild(box);
+  const ta=box.querySelector("textarea"), m=box.querySelector(".msg"), go=box.querySelector(".edit-go");
+  opcoesVoz(box.querySelector(".edit-voz"),(livro.opcoes||{}).voz||document.querySelector("input[name=voz]:checked").value);
+  ta.value="Carregando o texto…"; ta.disabled=true;
+  const f=estado(i).ok?await legendaDe(i):null; ta.disabled=false;
+  ta.value=textoEditavel(f);
+  if(!ta.value){ta.placeholder="Este capítulo não tem o texto salvo (foi gerado numa versão antiga). Cole aqui o texto do capítulo."}
+  box.querySelector(".edit-cancel").onclick=()=>box.remove();
+  go.onclick=async()=>{
+    if(ta.value.trim().split(/\s+/).length<2){msg(m,"Escreva o texto do capítulo.",true); return}
+    go.disabled=true;
+    try{
+      if(!await acordar(m)) return;
+      const o=livro.opcoes||{}, fd=new FormData();
+      addOpcoes(fd,{texto:ta.value, titulo:livro.capitulos[i].titulo, livro:livro.titulo, voz:box.querySelector(".edit-voz").value,
+        voz_dialogo:o.voz_dialogo||"", velocidade:o.velocidade||"0", pron:JSON.stringify(prons()), pausas:o.pausas||"normais", anunciar:o.anunciar===false?"0":"1"});
+      let r,j; try{r=await fetch("/refazer",{method:"POST",body:fd}); j=await r.json()}catch(e){msg(m,"O servidor não respondeu. Tente de novo.",true); return}
+      if(!r.ok){msg(m,j.erro,true); return}
+      msg(m,"Narrando o capítulo de novo… 0%");
+      let st; for(;;){await espera(2000);
+        try{const rs=await fetch("/status/"+j.id); if(rs.status===404){msg(m,"O servidor reiniciou no meio. Tente de novo.",true); return} st=await rs.json()}catch(e){continue}
+        const c=st.capitulos[0]; if(st.status==="erro"){msg(m,"A narração parou: "+st.erro,true); return}
+        if(c.status==="pronto") break; msg(m,`Narrando o capítulo de novo… ${c.progresso||0}%`)}
+      msg(m,"Salvando neste aparelho…");
+      const audio=await (await fetch(`/audio/${j.id}/0`)).blob(); let leg=null;
+      try{leg=(await (await fetch(`/legenda/${j.id}/0`)).json()).frases}catch(e){}
+      await idb.put("audios",audio,`${livro.id}:${i}`);
+      const legendas={...(livro.legendas||{})}; if(leg&&leg.length) legendas[i]=leg; else delete legendas[i];
+      const salvos=livro.salvos.includes(i)?livro.salvos:[...livro.salvos,i];
+      const capitulos=livro.capitulos.map((c,k)=>k===i?{...c,minutos:st.capitulos[0].minutos}:c);
+      Object.assign(livro,{legendas,salvos,capitulos}); await idb.put("livros",{...livro});
+      if(audioURL[i]){URL.revokeObjectURL(audioURL[i]); delete audioURL[i]}
+      delete durCache[livro.id+":"+i]; delete legMem[livro.id+":"+i];
+      if(legCap===i){legCap=-1; legAtual=null}
+      box.remove(); renderCaps(); aviso("Capítulo gerado de novo ✓");
+      const temMarcas=marcadores().some(x=>x.cap===i)||destaques().some(x=>x.cap===i);
+      if(temMarcas) aviso("Capítulo gerado de novo. Confira os marcadores dele: os tempos podem ter mudado.");
+      tocar(i,0.01);
+    } finally {go.disabled=false}
+  };
 }
 
 mostrarBiblioteca();

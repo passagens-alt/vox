@@ -9,6 +9,10 @@ Envie um PDF, EPUB ou Word (.docx), escolha a voz e receba o audiolivro em MP3, 
 - **Seus números**: tempo ouvido hoje e nos últimos 7 dias (com gráfico), dias seguidos ouvindo e livros terminados no ano.
 - **Backup**: o botão "Fazer backup" baixa um arquivo .vox com tudo (livros, áudios, marcadores, posição, pronúncias e números). Em outro aparelho, "Restaurar backup" coloca tudo de volta. Também dá para fazer backup de um livro só.
 - **Tocador completo**: velocidade de 0,75× a 2×, voltar/avançar 15 s, timer para dormir (15, 30, 45, 60 min ou fim do capítulo), continua de onde parou e funciona com os controles da tela de bloqueio do celular.
+- **Prévia de 1 minuto**: antes de gerar o livro, ouça cerca de 1 minuto do primeiro capítulo marcado com a voz, as pronúncias e os ajustes escolhidos.
+- **Corrigir e gerar de novo um capítulo**: o botão ✎ de cada capítulo abre o texto para corrigir (e escolher outra voz, se quiser) e gera só aquele capítulo de novo, sem refazer o livro.
+- **Como um audiolivro de verdade**: lê o título e o autor no começo (dá para corrigir os dois antes), anuncia o nome de cada capítulo (sem repetir quando o nome já está no texto), faz uma pausa maior nas mudanças de cena ("* * *") e, se quiser, pausas mais longas entre parágrafos.
+- **Números por extenso**: anos, datas (12/05/1990), horas (15h30), dinheiro (R$ 10,50), frações (3/4), porcentagens, ordinais (1º, 2ª), séculos e reis em algarismos romanos (século XIX, Pedro II), unidades (km, kg) e números soltos com o gênero certo ("duas horas").
 - **Texto limpo**: tira números de página, cabeçalhos e rodapés repetidos, notas de rodapé e as chamadas de nota, para a narração não ler essas coisas (dá para desligar).
 - **Pronúncias**: lista "escreve assim → fala assim" para nomes e siglas, com botão para ouvir como fica. Fica salva no aparelho.
 - **Vozes nos diálogos**: escolha uma segunda voz para as falas (com travessão — ou entre aspas “ ”). O narrador continua com a voz principal.
