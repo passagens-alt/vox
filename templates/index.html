@@ -5,12 +5,12 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>VOX — seu PDF virando audiolivro</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Instrument+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Instrument+Sans:wght@400;500;600&family=Literata:opsz,wght@7..72,400;7..72,500&display=swap">
 <style>
 :root{
   --bg:#eef0f3; --card:#fff; --ink:#18202e; --muted:#5b6475; --line:#dde1e8;
   --cover:#1d3b36; --cover2:#14302b; --gold:#b98a2c; --gold-soft:#f4e6c4; --ok:#2f7a55; --bad:#b4413a;
-  --display:"Young Serif",Georgia,serif; --ui:"Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --display:"Young Serif",Georgia,serif; --read:"Literata",Georgia,"Times New Roman",serif; --ui:"Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
   --shadow:0 1px 2px rgba(20,30,50,.06),0 8px 24px rgba(20,30,50,.06);
 }
 @media (prefers-color-scheme:dark){:root{
@@ -117,7 +117,8 @@ select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(-
 /* biblioteca */
 .lib-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:16px}
 .lib-head small{color:var(--muted)}
-.shelf{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:22px 18px}
+.shelf{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:22px 16px}
+@media (max-width:520px){.card{padding:20px}.shelf{gap:18px 12px}}
 .bk{display:flex;flex-direction:column;gap:8px;min-width:0}
 .bk .cv{all:unset;cursor:pointer;position:relative;aspect-ratio:2/3;border-radius:3px 8px 8px 3px;overflow:hidden;background:linear-gradient(90deg,var(--cover2) 0 9%,var(--cover) 9%);box-shadow:0 10px 22px rgba(10,20,30,.22);display:flex;align-items:flex-end;padding:12px 10px 16px 18px;color:#f1e3bd;font-family:var(--display);font-size:.95rem;line-height:1.15;transition:transform .2s}
 .bk .cv:hover{transform:translateY(-3px)}
@@ -211,6 +212,91 @@ select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(-
 .car .play svg{width:42%;height:42%;fill:currentColor}
 .car .chs2{display:flex;gap:12px;justify-content:center}
 .car .chs2 .big-txt{flex:1;max-width:260px;text-align:center}
+/* biblioteca: busca, estantes, etiquetas */
+.lib-tools{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.lib-tools input[type=search]{flex:1 1 220px;min-width:0;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:9px 16px}
+.lib-acts{display:flex;gap:8px;flex-wrap:wrap}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.chip{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:transparent;border-radius:999px;padding:6px 12px;cursor:pointer;font-size:.86rem}
+.chip b{font-weight:600;font-size:.75rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.chip:hover{border-color:var(--gold)}
+.chip[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chip[aria-pressed=true] b{color:inherit;opacity:.75}
+.chip.tag{border-style:dashed}
+.bk .cv .lido{position:absolute;top:8px;right:8px;z-index:2;background:var(--ok);color:#fff;font:600 .7rem var(--ui);padding:3px 8px;border-radius:999px}
+.bk .tags{display:flex;gap:4px;flex-wrap:wrap}
+.tg-pill{display:inline-flex;align-items:center;gap:4px;font:500 .72rem var(--ui);color:var(--muted);background:var(--bg);border:0;border-radius:999px;padding:2px 8px;cursor:pointer}
+.tg-pill:hover{color:var(--ink)}
+.tg-pill.on{color:var(--ink);cursor:default}
+.tg-pill button{all:unset;cursor:pointer;font-size:.7rem;padding:0 2px;color:var(--muted)}
+.tg-pill button:focus-visible{outline:2px solid var(--gold)}
+.bk .menu{display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.tagedit{display:flex;flex-direction:column;gap:8px;background:var(--bg);border-radius:10px;padding:10px}
+.tagrow{display:flex;gap:6px;flex-wrap:wrap}
+.tagrow .tg-pill{background:var(--card)}
+.tagadd{display:flex;gap:6px}
+.tagadd input{flex:1;min-width:0;font:inherit;font-size:.85rem;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:6px 8px}
+.restore-hint{margin:14px 0 0;font-size:.88rem;color:var(--muted);text-align:center}
+.link-inline{all:unset;cursor:pointer;color:var(--gold);font-weight:600}
+.link-inline:focus-visible{outline:2px solid var(--gold)}
+/* estatísticas */
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
+.tile{background:var(--bg);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.tile span{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.tile b{font-family:var(--display);font-weight:400;font-size:1.7rem;line-height:1.1;font-variant-numeric:tabular-nums}
+.weekbox{position:relative;margin-top:20px}
+.weekbox h3{font-size:.8rem;font-weight:600;color:var(--muted);margin:0 0 10px;letter-spacing:.08em;text-transform:uppercase}
+.week{display:grid;grid-template-columns:repeat(7,1fr);gap:10px;align-items:end}
+.week .col{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:default;border-radius:8px;outline-offset:2px}
+.week .col:focus-visible{outline:2px solid var(--gold)}
+.week .track{height:110px;width:100%;max-width:44px;display:flex;align-items:flex-end;border-bottom:1px solid var(--line)}
+.week .track i{display:block;width:100%;background:color-mix(in srgb,var(--gold) 55%,transparent);border-radius:4px 4px 0 0}
+.week .hoje .track i{background:var(--gold)}
+.week .col:hover .track i{background:var(--gold)}
+.week span{font-size:.75rem;color:var(--muted)}
+.week .hoje span{color:var(--ink);font-weight:600}
+.wtip{position:absolute;top:18px;background:var(--ink);color:var(--bg);font-size:.8rem;padding:6px 10px;border-radius:8px;white-space:nowrap;pointer-events:none;font-variant-numeric:tabular-nums}
+.st-total{margin:14px 0 0;font-size:.85rem;color:var(--muted)}
+/* texto acompanhando o áudio */
+.leitura{position:relative;max-height:min(60vh,540px);overflow:auto;--fs:1.15rem;padding:4px 2px;scroll-padding:80px 0}
+.leitura p{margin:0 0 1em;max-width:64ch;font-family:var(--read);font-size:var(--fs);line-height:1.8}
+.leitura .empty{font-family:var(--ui);font-size:.92rem}
+.fr{border-radius:4px;cursor:pointer;transition:background .25s,color .25s,box-shadow .25s}
+.fr:hover{background:color-mix(in srgb,var(--gold-soft) 55%,transparent)}
+.fr.now{background:var(--gold-soft);box-shadow:0 0 0 3px var(--gold-soft);color:var(--ink)}
+#voltarAqui{position:sticky;bottom:8px;margin:8px auto 0;display:block;background:var(--card);box-shadow:var(--shadow)}
+#readCard.full{position:fixed;inset:0;z-index:40;border-radius:0;margin:0;display:flex;flex-direction:column;
+  padding:calc(16px + env(safe-area-inset-top,0px)) max(16px,calc((100vw - 760px) / 2)) 0;overflow:hidden}
+#readCard.full .leitura{max-height:none;flex:1;padding-bottom:220px}
+.player{z-index:41}
+@media (prefers-reduced-motion:reduce){.fr{transition:none}}
+/* prévia do capítulo */
+.ch .t[role=button]{cursor:pointer;border-radius:8px}
+.ch .t[role=button]:focus-visible{outline:2px solid var(--gold)}
+.pv-hint{color:var(--gold);font-weight:600}
+.prevw{display:flex;flex-direction:column;gap:8px;color:var(--ink)}
+.pv-h{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:.85rem;color:var(--muted)}
+.pv-h b{color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums}
+.pv-l{margin:0;font-family:var(--read);font-size:.98rem;line-height:1.7;white-space:normal}
+.pv-a .go{padding:9px 18px;font-size:.9rem}
+/* despertador */
+.alarm{position:fixed;inset:0;z-index:55;background:#07100d;color:#c9d2cb;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;
+  padding:calc(20px + env(safe-area-inset-top,0px)) 20px calc(24px + env(safe-area-inset-bottom,0px));color-scheme:dark}
+.al-top{font-size:1rem;letter-spacing:.06em;color:#9aa69e}
+.al-top b{color:#dcb35e}
+.al-clock{font-family:var(--display);font-size:clamp(4.5rem,24vw,10rem);line-height:1;color:#7f8c84;font-variant-numeric:tabular-nums}
+.alarm.ringing .al-clock{color:#f3eee1}
+.al-sub{font-size:1.1rem}
+.al-book{font-size:.9rem;color:#7f8c84;max-width:40ch;overflow-wrap:anywhere}
+.al-acts{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:18px}
+.alarm .big-txt{all:unset;cursor:pointer;font:600 1.1rem var(--ui);padding:16px 26px;border-radius:999px;border:2px solid rgba(243,238,225,.3);color:#f3eee1}
+.alarm .big-txt.primary{background:#dcb35e;color:#07100d;border-color:#dcb35e}
+.alarm .big-txt:focus-visible{outline:3px solid #dcb35e;outline-offset:3px}
+.al-tip{max-width:46ch;font-size:.85rem;color:#7f8c84;margin-top:22px}
+.alrow{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+.alrow input[type=time]{font:inherit;font-size:1.3rem;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:6px 10px}
+.car .top{flex-wrap:wrap}
+@media (max-width:420px){.car .big-txt{padding:12px 16px;font-size:1rem}}
 /* tocador */
 .player{position:fixed;left:0;right:0;bottom:0;padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));background:color-mix(in srgb,var(--card) 92%,transparent);backdrop-filter:blur(10px);border-top:1px solid var(--line)}
 .pin{max-width:1000px;margin:0 auto;display:grid;grid-template-columns:auto auto minmax(0,1fr) auto;gap:16px;align-items:center}
@@ -228,18 +314,43 @@ select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(-
   .pin .pi{order:-1;flex:1 1 100%}
   .pin .thumb{display:none}
   .pin .ctrl{flex:1;justify-content:center}
-  .pin .opts{flex:1 1 100%;justify-content:center}
+  .pin .opts{flex:1 1 100%;justify-content:center;gap:4px;flex-wrap:wrap}
+  .pin .opts select{max-width:8.5em;padding:6px 4px}
+  .pin .opts .sk{width:34px;height:34px}
+  .sleep-left{min-width:0}
+  .sleep-left:empty{display:none}
 }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <div class="top"><div class="logo">VO<b>X</b></div><div class="tag">seu PDF virando audiolivro, capítulo por capítulo</div></div>
+  <div class="top"><div class="logo">VO<b>X</b></div><div class="tag">seu livro virando audiolivro, capítulo por capítulo</div></div>
 
   <section class="card" id="library" hidden>
     <div class="lib-head"><h2>Minha biblioteca</h2><small id="libInfo"></small></div>
+    <div class="lib-tools">
+      <input type="search" id="libBusca" placeholder="Buscar pelo título" aria-label="Buscar livro pelo título">
+      <div class="lib-acts"><button class="mini-btn" id="bkpAll">⬇ Fazer backup</button><button class="mini-btn" id="bkpRest">⬆ Restaurar backup</button></div>
+    </div>
+    <div class="chips" id="chips" aria-label="Estantes"></div>
+    <p class="msg" id="libMsg" hidden></p>
     <div class="shelf" id="shelf"></div>
+    <p class="empty" id="shelfEmpty" hidden></p>
+    <datalist id="tagList"></datalist>
   </section>
+
+  <section class="card" id="statsCard" hidden>
+    <div class="lib-head"><h2>Seus números</h2><small>tempo ouvindo neste aparelho</small></div>
+    <div class="tiles">
+      <div class="tile"><span>Hoje</span><b id="stHoje">0 min</b></div>
+      <div class="tile"><span>Últimos 7 dias</span><b id="stSemana">0 min</b></div>
+      <div class="tile"><span>Dias seguidos</span><b id="stSeq">0 dias</b></div>
+      <div class="tile"><span id="stAnoL">Terminados</span><b id="stAno">0</b></div>
+    </div>
+    <div class="weekbox"><h3>Últimos 7 dias</h3><div class="wtip" id="weekTip" hidden></div><div class="week" id="week"></div></div>
+    <p class="st-total" id="stTotal"></p>
+  </section>
+  <input type="file" id="bkpFile" accept=".vox,.zip,application/zip" hidden>
 
   <section class="card" id="stepUpload">
     <label class="drop" id="drop" for="pdf">
@@ -250,6 +361,7 @@ select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(-
     <input type="file" id="pdf" accept=".pdf,.epub,.docx,application/pdf,application/epub+zip,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
     <label class="opt" for="limpar"><input type="checkbox" id="limpar" checked><span>Limpar o texto<small>Tira números de página, cabeçalhos e rodapés repetidos e notas de rodapé, para a narração não ler essas coisas.</small></span></label>
     <p class="msg" id="upMsg" hidden></p>
+    <p class="restore-hint">Tem um backup do VOX de outro aparelho? <button class="link-inline" id="bkpRest2">Restaurar backup</button></p>
   </section>
 
   <section class="card" id="stepBook" hidden>
@@ -314,6 +426,15 @@ select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(-
     </div>
   </section>
 
+  <section class="card" id="readCard" hidden>
+    <div class="head">
+      <div><h2>Acompanhar o texto</h2><p class="sub" id="readSub" style="margin:0"></p></div>
+      <div class="acts"><button class="mini-btn" id="fontMenos" aria-label="Diminuir a letra">A−</button><button class="mini-btn" id="fontMais" aria-label="Aumentar a letra">A+</button><button class="mini-btn" id="readFull">Tela cheia</button></div>
+    </div>
+    <div class="leitura" id="leitura" tabindex="0" aria-label="Texto do capítulo; toque numa frase para ouvir dali"></div>
+    <button class="mini-btn" id="voltarAqui" hidden>↓ Voltar para o trecho que está tocando</button>
+  </section>
+
   <section class="card" id="marksCard" hidden>
     <h2>Marcadores</h2>
     <p class="sub">Toque num marcador para ouvir a partir dali.</p>
@@ -328,6 +449,16 @@ select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(-
     <label for="markNote" class="fxnote">Anotação (opcional)</label>
     <textarea id="markNote" placeholder="Ex.: frase bonita, parte importante para a prova…"></textarea>
     <div class="row2"><button class="ghost" id="markCancel">Cancelar</button><button class="go" id="markSave">Salvar marcador</button></div>
+  </div>
+  <div class="sheet" id="alarmPanel" hidden>
+    <div class="hd"><h4>Despertador com livro</h4><button class="mini-btn" id="alFechar">Fechar</button></div>
+    <div class="alrow">
+      <label class="f" for="alHora">Acordar às<input type="time" id="alHora" value="07:00"></label>
+      <label class="f" for="alOnde">Tocar<select id="alOnde"><option value="pos">De onde parei</option><option value="cap">Do começo deste capítulo</option><option value="prox">O próximo capítulo</option></select></label>
+      <label class="f" for="alRampa">Volume sobe em<select id="alRampa"><option value="1">1 minuto</option><option value="3">3 minutos</option><option value="5">5 minutos</option><option value="10">10 minutos</option></select></label>
+    </div>
+    <p class="fxnote">Deixe o celular carregando, com o som ligado e esta tela aberta: o navegador só toca o despertador com o site aberto. A tela fica escura e acesa até a hora.</p>
+    <div class="row2"><button class="go" id="alAtivar">Ativar despertador</button></div>
   </div>
   <div class="sheet" id="fxPanel" hidden>
     <div class="hd"><h4>Ajustes de som</h4><button class="mini-btn" id="fxClose">Fechar</button></div>
@@ -346,6 +477,7 @@ select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(-
       <button class="pl" id="pPlay" aria-label="Tocar"><svg viewBox="0 0 24 24" id="pIcon"><path d="M8 5v14l11-7z"/></svg></button>
       <button class="sk txt" id="pFwd" aria-label="Avançar 15 segundos">15<svg viewBox="0 0 24 24"><path d="M12 5V2l5 4-5 4V7a6 6 0 1 0 6 6h2a8 8 0 1 1-8-8z"/></svg></button>
       <button class="sk" id="pNext" aria-label="Próximo capítulo"><svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg></button>
+      <button class="sk" id="pWhere" aria-label="Onde eu estava? Repetir as últimas frases" title="Onde eu estava? (repete as últimas frases)"><svg viewBox="0 0 24 24"><path d="M12 4a8 8 0 1 1-7.9 9.3h2.03A6 6 0 1 0 12 6v3L7.5 5 12 1z"/><circle cx="12" cy="14" r="1.6"/></svg></button>
       <button class="sk" id="pMark" aria-label="Marcar este trecho" title="Marcar este trecho"><svg viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4-6 4z"/></svg></button>
     </div>
     <div class="pi">
@@ -358,13 +490,23 @@ select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(-
       <select id="sleep" aria-label="Timer para dormir"><option value="">☾ Timer</option><option value="15">15 min</option><option value="30">30 min</option><option value="45">45 min</option><option value="60">1 hora</option><option value="fim">Fim do capítulo</option></select>
       <span class="sleep-left" id="sleepLeft"></span>
       <button class="sk" id="pFx" aria-label="Ajustes de som" aria-expanded="false" title="Ajustes de som"><svg viewBox="0 0 24 24"><path d="M5 10h2v9H5zm6-6h2v15h-2zm6 9h2v6h-2zM4 8h4v1.5H4zm6 2h4v1.5h-4zm6 1h4v1.5h-4z"/></svg></button>
+      <button class="sk" id="pAlarm" aria-label="Despertador com livro" title="Despertador com livro"><svg viewBox="0 0 24 24"><path d="M12 6a7 7 0 1 0 0 14 7 7 0 0 0 0-14zm0 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10zm.75-8h-1.5v3.6l3 1.8.75-1.25-2.25-1.35zM7.4 2.6 3.1 6.2l1.3 1.5 4.3-3.6zm9.2 0-1.3 1.5 4.3 3.6 1.3-1.5z"/></svg></button>
       <button class="sk" id="pCar" aria-label="Modo carro" title="Modo carro"><svg viewBox="0 0 24 24"><path d="M5 11l1.5-4.5A2 2 0 0 1 8.4 5h7.2a2 2 0 0 1 1.9 1.5L19 11v6h-2v2h-2v-2H9v2H7v-2H5zm2.2 0h9.6l-1-3H8.2zM7.5 15a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zm9 0a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z"/></svg></button>
     </div>
   </div>
 </div>
 <div class="toast" id="toast" hidden role="status"></div>
+<div class="alarm" id="alarm" hidden role="dialog" aria-label="Despertador">
+  <div class="al-top">⏰ Despertador às <b id="alAt"></b></div>
+  <div class="al-clock" id="alClock">00:00</div>
+  <div class="al-sub" id="alSub"></div>
+  <div class="al-book" id="alBook"></div>
+  <div class="al-acts" id="alArmed"><button class="big-txt" id="alCancel">Cancelar despertador</button></div>
+  <div class="al-acts" id="alRinging" hidden><button class="big-txt" id="alSnooze">Soneca 10 min</button><button class="big-txt" id="alStop">Parar</button><button class="big-txt primary" id="alKeep">Continuar ouvindo</button></div>
+  <p class="al-tip">Mantenha esta tela aberta e o celular na tomada.</p>
+</div>
 <div class="car" id="car" hidden role="dialog" aria-label="Modo carro">
-  <div class="top"><button class="big-txt" id="carMark">🔖 Marcar</button><button class="big-txt" id="carExit">Sair ✕</button></div>
+  <div class="top"><button class="big-txt" id="carMark">🔖 Marcar</button><button class="big-txt" id="carWhere">↺ Onde eu estava?</button><button class="big-txt" id="carExit">Sair ✕</button></div>
   <div class="info"><div id="carBook"></div><div id="carCap"></div><div id="carLeft"></div><div class="cbar"><i id="carFill"></i></div></div>
   <div class="main">
     <button class="cb skip" id="carBack" aria-label="Voltar 30 segundos"><svg viewBox="0 0 24 24"><path d="M12 5V2L7 6l5 4V7a6 6 0 1 1-6 6H4a8 8 0 1 0 8-8z"/></svg>30</button>
@@ -402,26 +544,6 @@ let file=null, pdfBlob=null, analise=null, livro=null, server={}, serverGone=fal
 const posKey=id=>"pos:"+id;
 
 /* ---------------- biblioteca ---------------- */
-async function mostrarBiblioteca(){
-  let livros=[]; try{livros=(await idb.all("livros")).sort((a,b)=>b.criado-a.criado)}catch(e){}
-  $("library").hidden=!livros.length; const sh=$("shelf"); sh.innerHTML="";
-  livros.forEach(l=>{
-    const total=l.capitulos.reduce((a,c)=>a+c.minutos,0), p=ls.get(posKey(l.id),{cap:0,t:0});
-    const ouvido=l.capitulos.slice(0,p.cap).reduce((a,c)=>a+c.minutos,0)+p.t/60, pct=Math.min(100,Math.round(100*ouvido/Math.max(1,total)));
-    const el=document.createElement("div"); el.className="bk";
-    el.innerHTML=`<button class="cv" aria-label="Abrir"><span class="nm"></span><span class="bar"><i style="width:${pct}%"></i></span></button>
-      <div class="ti"></div><div class="me">${l.salvos.length} de ${l.capitulos.length} cap. · ${pct}% ouvido</div>
-      <div class="ops"><button class="mini-btn play">${pct>0?"Continuar":"Ouvir"}</button><button class="mini-btn danger del">Excluir</button></div>`;
-    el.querySelector(".nm").textContent=l.titulo; el.querySelector(".ti").textContent=l.titulo;
-    if(l.capa){const im=document.createElement("img"); im.alt=""; im.src=URL.createObjectURL(l.capa); el.querySelector(".cv").prepend(im)}
-    const abrir=()=>abrirLivro(l.id,true);
-    el.querySelector(".cv").onclick=()=>abrirLivro(l.id,false); el.querySelector(".play").onclick=abrir;
-    const del=el.querySelector(".del"); del.onclick=async()=>{
-      if(del.dataset.ok){await excluir(l.id); mostrarBiblioteca(); return}
-      del.dataset.ok=1; del.textContent="Confirmar exclusão"; setTimeout(()=>{if(del.isConnected){delete del.dataset.ok; del.textContent="Excluir"}},4000)};
-    sh.appendChild(el);});
-  try{const e=await navigator.storage.estimate(); $("libInfo").textContent=livros.length?`${livros.length} livro${livros.length>1?"s":""} · ${(e.usage/1048576).toFixed(0)} MB usados neste aparelho`:""}catch(e){}
-}
 async function excluir(id){await idb.delRange("audios",id+":",id+":￿"); await idb.del("livros",id); try{localStorage.removeItem(posKey(id)); localStorage.removeItem("marc:"+id)}catch(e){}}
 
 async function abrirLivro(id,tocarJa){
@@ -433,6 +555,7 @@ async function abrirLivro(id,tocarJa){
   renderCaps();
   if(l.salvos.length<l.capitulos.length&&l.job){checar(); clearInterval(poll); poll=setInterval(checar,2500)}
   const p=ls.get(posKey(l.id),{cap:0,t:0});
+  legCap=-1; legAtual=null; if(estado(p.cap).ok) mostrarLeitura(p.cap); else $("readCard").hidden=true;
   $("resume").hidden=false; $("resumeBtn").textContent=(p.cap||p.t)?`▶ Continuar · cap. ${p.cap+1}, ${fmt(p.t)}`:"▶ Começar a ouvir";
   $("resumeBtn").onclick=()=>tocar(p.cap,p.t);
   if(tocarJa) tocar(p.cap,p.t);
@@ -457,11 +580,16 @@ let analiseCaps=[], analiseInfo={};
 async function escolher(f){
   if(!f) return; file=f;
   if(!/\.(pdf|epub|docx)$/i.test(f.name)){msg($("upMsg"),"Esse formato não é aceito. Envie um PDF, EPUB ou Word (.docx).",true);return}
-  msg($("upMsg"),`Enviando e lendo o livro (${(f.size/1048576).toFixed(1)} MB)… livros grandes podem levar 1 a 2 minutos no plano grátis.`);
+  if(f.size>80*1048576){msg($("upMsg"),`Este arquivo tem ${(f.size/1048576).toFixed(0)} MB e o limite é 80 MB. Tente uma versão menor (sem imagens) ou divida o livro em partes.`,true);return}
+  if(!await acordar($("upMsg"))) return;
   const fd=new FormData(); fd.append("pdf",f); fd.append("limpar",$("limpar").checked?"1":"0");
-  let r,j; try{r=await fetch("/analisar",{method:"POST",body:fd}); j=await r.json();}
-  catch(e){msg($("upMsg"),"O servidor não respondeu. Ele pode estar acordando ou ter ficado sem memória com este livro. Espere um minuto e tente de novo; se repetir, tente um arquivo menor.",true);return}
-  if(!r.ok){msg($("upMsg"),j.erro,true);return}
+  let r=await enviar("/analisar",fd,$("upMsg"),f.size);
+  if(r.rede){ // uma nova tentativa depois de acordar o servidor
+    if(!await acordar($("upMsg"))) return;
+    r=await enviar("/analisar",fd,$("upMsg"),f.size);
+  }
+  if(r.erro){msg($("upMsg"),r.erro,true);return}
+  const j=r.j;
   if(!j.capitulos.length){msg($("upMsg"),"Este arquivo não tem texto selecionável (provavelmente é escaneado). Passe por OCR antes.",true);return}
   analise=j.analise; analiseCaps=j.capitulos; analiseInfo={titulo:j.titulo,paginas:j.paginas};
   livro={titulo:j.titulo,paginas:j.paginas,capitulos:j.capitulos,salvos:[]};
@@ -485,6 +613,34 @@ async function verTexto(li,i){
   const d=document.createElement("div"); d.className="prev"; d.textContent="Carregando…"; li.appendChild(d); li.querySelector(".ver").textContent="fechar";
   try{const r=await fetch(`/texto/${analise}/${i}`); const j=await r.json(); d.textContent=j.texto+(j.total>j.texto.length?" …":"")}
   catch(e){d.textContent="Não consegui carregar o texto agora."}
+}
+
+/* ---------------- conexão com o servidor ---------------- */
+const espera=ms=>new Promise(r=>setTimeout(r,ms));
+async function acordar(el){  // o plano grátis dorme depois de 15 min sem uso e leva ~1 min para acordar
+  const t0=Date.now();
+  for(let k=0;Date.now()-t0<120000;k++){
+    try{const r=await fetch("/ping",{cache:"no-store"}); if(r.ok) return true}catch(e){}
+    msg(el,`Acordando o servidor… isso leva até 1 minuto quando o site fica parado. (${Math.round((Date.now()-t0)/1000)} s)`);
+    await espera(3000);
+  }
+  msg(el,"O servidor não acordou. Confira no Render se o site está no ar (Deploy live) e tente de novo.",true); return false;
+}
+function enviar(url,fd,el,tamanho){  // envio com porcentagem; devolve {j} ou {erro} ou {rede:true}
+  return new Promise(res=>{
+    const x=new XMLHttpRequest(); x.open("POST",url); x.timeout=15*60000;
+    const mb=(tamanho/1048576).toFixed(1);
+    x.upload.onprogress=e=>{if(e.lengthComputable){const p=Math.round(100*e.loaded/e.total);
+      msg(el,p<100?`Enviando o livro (${mb} MB)… ${p}%`:"Lendo o livro e procurando os capítulos…")}};
+    x.onload=()=>{let j=null; try{j=JSON.parse(x.responseText)}catch(e){}
+      if(x.status>=200&&x.status<300&&j) return res({j});
+      if(j&&j.erro) return res({erro:j.erro});
+      if(x.status===413) return res({erro:"O arquivo passa do limite de 80 MB. Tente uma versão menor."});
+      if(x.status===502||x.status===503||x.status===504) return res({rede:true,erro:"O servidor reiniciou no meio da leitura. Tente de novo; se repetir, me avise o tamanho do livro."});
+      res({erro:`O servidor respondeu com erro ${x.status}. Tente de novo em instantes.`})};
+    x.onerror=x.ontimeout=()=>res({rede:true,erro:"A conexão caiu durante o envio. Confira a internet e tente de novo."});
+    x.send(fd);
+  });
 }
 
 /* ---------------- páginas do PDF ---------------- */
@@ -541,7 +697,9 @@ if(!$("prows").children.length) linhaPron();
 $("gerar").onclick=async()=>{
   const marcados=[...document.querySelectorAll(".ch .chk")].map((c,i)=>c.checked?i:null).filter(i=>i!==null);
   if(!marcados.length){msg($("genMsg"),"Marque pelo menos um capítulo.",true);return}
-  $("gerar").disabled=true; msg($("genMsg"),"Enviando…");
+  $("gerar").disabled=true;
+  if(!await acordar($("genMsg"))){$("gerar").disabled=false;return}
+  msg($("genMsg"),"Enviando…");
   const envio=comPdf=>{const fd=new FormData(); if(comPdf) fd.append("pdf",file); else fd.append("analise",analise||"");
     fd.append("voz",document.querySelector("input[name=voz]:checked").value);
     fd.append("velocidade",$("vel").value); fd.append("capitulos",marcados.join(",")); fd.append("pron",JSON.stringify(prons()));
@@ -574,8 +732,10 @@ async function salvar(i){  // um capítulo por vez; só conta como salvo depois 
   const alvo=livro;
   try{const r=await fetch(`/audio/${alvo.job}/${i}`); if(!r.ok) throw 0; const b=await r.blob();
     await idb.put("audios",b,`${alvo.id}:${i}`);
+    let leg=null; try{const rl=await fetch(`/legenda/${alvo.job}/${i}`); if(rl.ok) leg=(await rl.json()).frases}catch(e){}
+    const legendas={...(alvo.legendas||{})}; if(leg&&leg.length) legendas[i]=leg;
     const salvos=alvo.salvos.includes(i)?alvo.salvos:[...alvo.salvos,i];
-    await idb.put("livros",{...alvo,salvos}); alvo.salvos=salvos;
+    await idb.put("livros",{...alvo,salvos,legendas}); alvo.salvos=salvos; alvo.legendas=legendas;
   }catch(e){}
   salvando.delete(i); if(livro===alvo) renderCaps();
 }
@@ -593,12 +753,13 @@ function renderCaps(){
   const ol=$("chs");
   if(ol.dataset.livro!==livro.id){ol.dataset.livro=livro.id; ol.innerHTML="";
     livro.capitulos.forEach((c,i)=>{const li=document.createElement("li"); li.className="ch"; li.id="c"+i;
-      li.innerHTML=`<span></span><span class="num">${i+1}</span><div class="t"><div></div><small>${c.minutos} min</small><div class="pb"><i></i></div></div>
+      li.innerHTML=`<span></span><span class="num">${i+1}</span><div class="t" role="button" tabindex="0" aria-expanded="false" title="Ver prévia"><div></div><small>${c.minutos} min · <span class="pv-hint">prévia</span></small><div class="pb"><i></i></div></div>
         <div class="acts"><span class="pill"></span><button class="ib play" aria-label="Ouvir"><svg viewBox="0 0 24 24">${PLAY}</svg></button>
         <a class="ib dl" aria-label="Baixar MP3"><svg viewBox="0 0 24 24">${DL}</svg></a></div>`;
       li.querySelector(".t div").textContent=c.titulo;
       li.querySelector(".play").onclick=()=>tocar(i);
       li.querySelector(".dl").onclick=e=>baixar(e,i);
+      const tt=li.querySelector(".t"); tt.onclick=()=>previa(li,i); tt.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault(); previa(li,i)}};
       ol.appendChild(li);});
     icons();}
   let ok=0;
@@ -640,7 +801,7 @@ async function tocar(i,t){
   showPage(livro.capitulos[i].pag_ini);
   $("pTitle").textContent=`${i+1}. ${livro.capitulos[i].titulo}`;
   document.querySelectorAll(".ch").forEach((li,k)=>li.classList.toggle("playing",k===i));
-  if("mediaSession" in navigator){try{navigator.mediaSession.metadata=new MediaMetadata({title:livro.capitulos[i].titulo,artist:livro.titulo,album:"VOX",artwork:coverURL?[{src:coverURL,sizes:"420x630",type:"image/jpeg"}]:[]})}catch(e){}}
+  atualizarSessao(i); mostrarLeitura(i);
 }
 function icons(){const p=!au.paused; $("pIcon").innerHTML=p?PAUSE:PLAY;
   document.querySelectorAll(".ch .play").forEach((b,k)=>b.querySelector("svg").innerHTML=(p&&k===cur)?PAUSE:PLAY);}
@@ -760,10 +921,11 @@ function ensureFx(){
   const comp=actx.createDynamicsCompressor();
   const ganho=actx.createGain();
   const an=actx.createAnalyser(); an.fftSize=1024;
-  src.connect(hp).connect(pk).connect(comp).connect(ganho).connect(actx.destination);
+  const mestre=actx.createGain();
+  src.connect(hp).connect(pk).connect(comp).connect(ganho).connect(mestre).connect(actx.destination);
   src.connect(an);
   const musica=actx.createGain(); musica.gain.value=0; musica.connect(actx.destination);
-  fx={hp,pk,comp,ganho,an,musica,buf:new Float32Array(an.fftSize)};
+  fx={hp,pk,comp,ganho,mestre,an,musica,buf:new Float32Array(an.fftSize)};
   aplicarFx(); return true;
 }
 function aplicarFx(){
@@ -843,6 +1005,372 @@ function trocarMusica(){
   volumeMusica();
 }
 sincronizarFx();
+
+/* ---------------- biblioteca: estantes, etiquetas, busca ---------------- */
+let filtro=ls.get("libFiltro","todos"), busca="";
+function progresso(l){
+  const total=l.capitulos.reduce((a,c)=>a+c.minutos,0), p=ls.get(posKey(l.id),{cap:0,t:0});
+  const ouvido=l.capitulos.slice(0,p.cap).reduce((a,c)=>a+c.minutos,0)+p.t/60;
+  return l.terminado?100:Math.min(99,Math.round(100*ouvido/Math.max(1,total)));
+}
+const situacao=(l,pct)=>l.terminado?"terminados":pct>0?"lendo":"novos";
+const ESTANTES=[["todos","Todos"],["lendo","Lendo"],["novos","Não começados"],["terminados","Terminados"]];
+async function mostrarBiblioteca(){
+  let livros=[]; try{livros=(await idb.all("livros")).sort((a,b)=>b.criado-a.criado)}catch(e){}
+  $("library").hidden=!livros.length;
+  const info=livros.map(l=>{const pct=progresso(l); return {l,pct,sit:situacao(l,pct),tags:l.etiquetas||[]}});
+  const tags=[...new Set(info.flatMap(x=>x.tags))].sort((a,b)=>a.localeCompare(b,"pt"));
+  const cont=k=>k==="todos"?info.length:k.startsWith("#")?info.filter(x=>x.tags.includes(k.slice(1))).length:info.filter(x=>x.sit===k).length;
+  const opcoes=[...ESTANTES.filter(([k])=>k==="todos"||cont(k)),...tags.map(t=>["#"+t,t])];
+  if(!opcoes.some(([k])=>k===filtro)) filtro="todos";
+  const ch=$("chips"); ch.innerHTML="";
+  opcoes.forEach(([k,nome])=>{const b=document.createElement("button"); b.className="chip"+(k.startsWith("#")?" tag":"");
+    b.setAttribute("aria-pressed",k===filtro); b.innerHTML=`<span></span><b>${cont(k)}</b>`; b.firstChild.textContent=(k.startsWith("#")?"# ":"")+nome;
+    b.onclick=()=>{filtro=k; ls.set("libFiltro",k); mostrarBiblioteca()}; ch.appendChild(b);});
+  const q=busca.trim().toLocaleLowerCase("pt");
+  const vis=info.filter(x=>(filtro==="todos"||(filtro.startsWith("#")?x.tags.includes(filtro.slice(1)):x.sit===filtro))&&(!q||x.l.titulo.toLocaleLowerCase("pt").includes(q)));
+  const sh=$("shelf"); sh.querySelectorAll("img").forEach(i=>URL.revokeObjectURL(i.src)); sh.innerHTML="";
+  $("shelfEmpty").hidden=!!vis.length||!livros.length;
+  $("shelfEmpty").textContent=q?`Nenhum livro com “${busca.trim()}” no título.`:"Nenhum livro nesta estante.";
+  vis.forEach(({l,pct,tags:tg})=>sh.appendChild(cartaoLivro(l,pct,tg,tags)));
+  try{const e=await navigator.storage.estimate(); $("libInfo").textContent=livros.length?`${livros.length} livro${livros.length>1?"s":""} · ${(e.usage/1048576).toFixed(0)} MB neste aparelho`:""}catch(e){}
+  renderStats(livros);
+}
+function cartaoLivro(l,pct,tg,todasTags){
+  const el=document.createElement("div"); el.className="bk";
+  el.innerHTML=`<button class="cv" aria-label="Abrir"><span class="nm"></span>${l.terminado?'<span class="lido">✓ Lido</span>':""}<span class="bar"><i style="width:${pct}%"></i></span></button>
+    <div class="ti"></div><div class="me">${l.terminado?"Terminado":`${pct}% ouvido`} · ${l.salvos.length} de ${l.capitulos.length} cap.</div>
+    <div class="tags"></div>
+    <div class="ops"><button class="mini-btn play">${l.terminado?"Ouvir de novo":pct>0?"Continuar":"Ouvir"}</button><button class="mini-btn mais" aria-expanded="false">Mais ▾</button></div>
+    <div class="menu" hidden>
+      <button class="mini-btn et">🏷 Etiquetas</button>
+      <button class="mini-btn lido-b">${l.terminado?"↺ Marcar como não lido":"✓ Marcar como lido"}</button>
+      <button class="mini-btn bk1">⬇ Backup deste livro</button>
+      <button class="mini-btn danger del">Excluir</button>
+    </div>
+    <div class="tagedit" hidden><div class="tagrow"></div>
+      <div class="tagadd"><input list="tagList" placeholder="Nova etiqueta" aria-label="Nova etiqueta" maxlength="24"><button class="mini-btn">Adicionar</button></div></div>`;
+  el.querySelector(".nm").textContent=l.titulo; el.querySelector(".ti").textContent=l.titulo;
+  if(l.capa){const im=document.createElement("img"); im.alt=""; im.src=URL.createObjectURL(l.capa); el.querySelector(".cv").prepend(im)}
+  const tagsBox=el.querySelector(".tags");
+  tg.forEach(t=>{const s=document.createElement("button"); s.className="tg-pill"; s.textContent="# "+t; s.onclick=()=>{filtro="#"+t; ls.set("libFiltro",filtro); mostrarBiblioteca()}; tagsBox.appendChild(s)});
+  el.querySelector(".cv").onclick=()=>abrirLivro(l.id,false);
+  el.querySelector(".play").onclick=async()=>{if(l.terminado){ls.set(posKey(l.id),{cap:0,t:0})} abrirLivro(l.id,true)};
+  const menu=el.querySelector(".menu"), mais=el.querySelector(".mais");
+  mais.onclick=()=>{menu.hidden=!menu.hidden; mais.setAttribute("aria-expanded",!menu.hidden); mais.textContent=menu.hidden?"Mais ▾":"Menos ▴"};
+  el.querySelector(".lido-b").onclick=async()=>{await marcarLido(l.id,!l.terminado); mostrarBiblioteca()};
+  el.querySelector(".bk1").onclick=()=>fazerBackup([l.id]);
+  const del=el.querySelector(".del"); del.onclick=async()=>{
+    if(del.dataset.ok){await excluir(l.id); mostrarBiblioteca(); return}
+    del.dataset.ok=1; del.textContent="Confirmar exclusão"; setTimeout(()=>{if(del.isConnected){delete del.dataset.ok; del.textContent="Excluir"}},4000)};
+  // etiquetas
+  const ed=el.querySelector(".tagedit"), row=el.querySelector(".tagrow"), inp=el.querySelector(".tagadd input");
+  let lista=[...tg];
+  const desenhar=()=>{row.innerHTML=""; if(!lista.length){row.innerHTML='<span class="fxnote">Sem etiquetas ainda. Ex.: Estudo, Romance, Para as crianças.</span>'}
+    lista.forEach(t=>{const s=document.createElement("span"); s.className="tg-pill on"; s.textContent="# "+t;
+      const x=document.createElement("button"); x.textContent="✕"; x.setAttribute("aria-label","Tirar a etiqueta "+t);
+      x.onclick=async()=>{lista=lista.filter(v=>v!==t); await salvarTags(l.id,lista); desenhar()}; s.appendChild(x); row.appendChild(s)})};
+  const add=async()=>{const t=inp.value.trim().replace(/^#\s*/,""); if(!t) return; inp.value="";
+    if(!lista.some(v=>v.toLocaleLowerCase("pt")===t.toLocaleLowerCase("pt"))){lista.push(t); await salvarTags(l.id,lista)} desenhar(); inp.focus()};
+  el.querySelector(".tagadd button").onclick=add; inp.onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();add()}};
+  el.querySelector(".et").onclick=()=>{ed.hidden=!ed.hidden; if(!ed.hidden){desenhar(); inp.focus()} else mostrarBiblioteca()};
+  return el;
+}
+async function salvarTags(id,lista){const l=await idb.get("livros",id); if(!l) return; l.etiquetas=lista; await idb.put("livros",l); listaTags()}
+async function listaTags(){const dl=$("tagList"); const todas=new Set((await idb.all("livros")).flatMap(x=>x.etiquetas||[]));
+  dl.innerHTML=""; todas.forEach(t=>{const o=document.createElement("option"); o.value=t; dl.appendChild(o)})}
+async function marcarLido(id,lido){
+  const l=await idb.get("livros",id); if(!l) return;
+  l.terminado=lido?Date.now():null; await idb.put("livros",l); if(livro&&livro.id===id) livro.terminado=l.terminado;
+  const s=stats(); if(lido) s.fim[id]={titulo:l.titulo,quando:l.terminado}; else delete s.fim[id]; ls.set("stats",s);
+}
+$("libBusca").oninput=e=>{busca=e.target.value; mostrarBiblioteca()};
+
+/* ---------------- estatísticas ---------------- */
+function stats(){const s=ls.get("stats",{}); return {dias:s.dias||{},fim:s.fim||{}}}
+const diaKey=(d=new Date())=>d.toLocaleDateString("sv");
+let stBuf=0, stLast=0;
+function flushStats(){if(stBuf<1) return; const s=stats(), k=diaKey(); s.dias[k]=Math.round((s.dias[k]||0)+stBuf); stBuf=0; ls.set("stats",s)}
+au.addEventListener("play",()=>{stLast=performance.now()});
+au.addEventListener("timeupdate",()=>{if(au.paused){stLast=0;return} const now=performance.now();
+  if(stLast){const d=(now-stLast)/1000; if(d>0&&d<3) stBuf+=d} stLast=now; if(stBuf>=15) flushStats()});
+au.addEventListener("pause",()=>{stLast=0; flushStats()});
+addEventListener("pagehide",flushStats);
+au.addEventListener("ended",async()=>{
+  if(livro&&livro.id&&cur===livro.capitulos.length-1&&!livro.terminado&&sleepMode!=="fim"){await marcarLido(livro.id,true); aviso("Livro terminado! 🎉")}});
+const fmtDur=s=>{const m=Math.round(s/60); return m<1&&s>0?"<1 min":m<60?m+" min":Math.floor(m/60)+" h "+String(m%60).padStart(2,"0")}
+function renderStats(livros){
+  flushStats(); const s=stats(), dias=s.dias, hoje=new Date();
+  const temAlgo=Object.keys(dias).length||Object.keys(s.fim).length;
+  $("statsCard").hidden=!temAlgo&&!(livros||[]).length;
+  const ultimos=[...Array(7)].map((_,i)=>{const d=new Date(hoje); d.setDate(d.getDate()-6+i); return {d,k:diaKey(d),v:dias[diaKey(d)]||0}});
+  let seq=0; {const d=new Date(hoje); if(!(dias[diaKey(d)]>=60)) d.setDate(d.getDate()-1); while(dias[diaKey(d)]>=60){seq++; d.setDate(d.getDate()-1)}}
+  const ano=hoje.getFullYear(), noAno=Object.values(s.fim).filter(f=>new Date(f.quando).getFullYear()===ano).length;
+  const total=Object.values(dias).reduce((a,b)=>a+b,0);
+  $("stHoje").textContent=fmtDur(dias[diaKey()]||0);
+  $("stSemana").textContent=fmtDur(ultimos.reduce((a,x)=>a+x.v,0));
+  $("stSeq").textContent=seq+(seq===1?" dia":" dias");
+  $("stAno").textContent=noAno; $("stAnoL").textContent=`Terminados em ${ano}`;
+  $("stTotal").textContent=total?`Total ouvido neste aparelho: ${fmtDur(total)}`:"Comece a ouvir e seus números aparecem aqui.";
+  const max=Math.max(...ultimos.map(x=>x.v),60*10), box=$("week"); box.innerHTML="";
+  const wd=new Intl.DateTimeFormat("pt-BR",{weekday:"short"}), dm=new Intl.DateTimeFormat("pt-BR",{day:"2-digit",month:"2-digit"});
+  ultimos.forEach((x,i)=>{const c=document.createElement("div"); c.className="col"+(i===6?" hoje":"");
+    const rot=`${wd.format(x.d).replace(".","")}, ${dm.format(x.d)}: ${fmtDur(x.v)||"0 min"}`;
+    c.innerHTML=`<div class="track"><i style="height:${x.v?Math.max(4,100*x.v/max):0}%"></i></div><span>${i===6?"hoje":wd.format(x.d).replace(".","").slice(0,3)}</span>`;
+    c.tabIndex=0; c.setAttribute("role","img"); c.setAttribute("aria-label",rot); c.dataset.tip=x.v?rot:rot.replace(/: .*/,": nada ouvido");
+    box.appendChild(c);});
+}
+(()=>{const tip=$("weekTip"), box=$("week");
+  const show=c=>{if(!c) return; tip.textContent=c.dataset.tip; tip.hidden=false; const r=c.getBoundingClientRect(), b=box.getBoundingClientRect();
+    tip.style.left=Math.min(Math.max(0,r.left-b.left+r.width/2-tip.offsetWidth/2),b.width-tip.offsetWidth)+"px"};
+  box.addEventListener("pointerover",e=>show(e.target.closest(".col"))); box.addEventListener("focusin",e=>show(e.target.closest(".col")));
+  box.addEventListener("pointerleave",()=>tip.hidden=true); box.addEventListener("focusout",()=>tip.hidden=true);})();
+
+/* ---------------- backup e restauração ---------------- */
+let zipP=null;
+function carregarZip(){if(window.JSZip) return Promise.resolve();
+  return zipP||(zipP=new Promise((res,rej)=>{const s=document.createElement("script"); s.src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js";
+    s.onload=res; s.onerror=()=>{zipP=null; rej(new Error("zip"))}; document.head.appendChild(s)}))}
+function baixarBlob(blob,nome){const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=nome; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),60000)}
+async function fazerBackup(ids){
+  const el=$("libMsg");
+  try{await carregarZip()}catch(e){msg(el,"Não consegui preparar o backup agora. Confira a internet e tente de novo.",true);return}
+  const z=new JSZip(), todos=await idb.all("livros"), lista=todos.filter(l=>!ids||ids.includes(l.id));
+  if(!lista.length){msg(el,"Não há livros para salvar.",true);return}
+  const man={app:"VOX",versao:1,criado:new Date().toISOString(),livros:[],local:null};
+  for(const [n,l] of lista.entries()){
+    msg(el,`Juntando os arquivos… livro ${n+1} de ${lista.length}`);
+    const {capa,pdf,...meta}=l; meta.arquivos={capa:!!capa,pdf:!!pdf};
+    if(capa) z.file(`livros/${l.id}/capa.jpg`,capa);
+    if(pdf) z.file(`livros/${l.id}/livro.pdf`,pdf);
+    for(const i of l.salvos){const b=await idb.get("audios",`${l.id}:${i}`); if(b) z.file(`livros/${l.id}/${i}.mp3`,b)}
+    meta.pos=ls.get(posKey(l.id),null); meta.marcadores=ls.get("marc:"+l.id,[]);
+    man.livros.push(meta);
+  }
+  if(!ids){flushStats(); man.local={pron:ls.get("pron",[]),speed:ls.get("speed",null),audiofx:ls.get("audiofx",null),stats:stats()}}
+  z.file("vox.json",JSON.stringify(man,null,1));
+  try{
+    const blob=await z.generateAsync({type:"blob",compression:"STORE",streamFiles:true},m=>msg(el,`Preparando o backup… ${Math.round(m.percent)}%`));
+    const nome=ids&&lista.length===1?`VOX-${nomeArq(lista[0].titulo)}.vox`:`VOX-backup-${diaKey()}.vox`;
+    baixarBlob(blob,nome);
+    msg(el,`Backup pronto: ${nome} (${(blob.size/1048576).toFixed(1)} MB). Guarde esse arquivo no Google Drive, no e-mail ou num pen drive. Para usar em outro aparelho, abra o VOX lá e toque em “Restaurar backup”.`);
+  }catch(e){msg(el,"O backup ficou grande demais para a memória deste aparelho. Tente fazer o backup de um livro por vez (botão Mais ▾ de cada livro).",true)}
+}
+async function restaurar(f){
+  const el=$("library").hidden?$("upMsg"):$("libMsg");
+  if(!f) return;
+  try{await carregarZip()}catch(e){msg(el,"Não consegui abrir o backup agora. Confira a internet e tente de novo.",true);return}
+  msg(el,"Abrindo o backup…");
+  let z,man; try{z=await JSZip.loadAsync(f); man=JSON.parse(await z.file("vox.json").async("string")); if(man.app!=="VOX") throw 0}
+  catch(e){msg(el,"Este arquivo não é um backup do VOX. Escolha o arquivo .vox que o site baixou.",true);return}
+  let novos=0, iguais=0;
+  try{
+    for(const [n,meta] of man.livros.entries()){
+      msg(el,`Restaurando ${n+1} de ${man.livros.length}: ${meta.titulo}…`);
+      const {arquivos={},pos,marcadores=[],...l}=meta, base=`livros/${meta.id}/`, atual=await idb.get("livros",meta.id);
+      const minhas=ls.get("marc:"+meta.id,[]), ids=new Set(minhas.map(m=>m.id));
+      ls.set("marc:"+meta.id,[...minhas,...marcadores.filter(m=>!ids.has(m.id))].sort((a,b)=>a.cap-b.cap||a.t-b.t));
+      if(pos&&!ls.get(posKey(meta.id),null)) ls.set(posKey(meta.id),pos);
+      if(atual&&atual.salvos.length>=meta.salvos.length){iguais++; continue}
+      const ler=async(nome,tipo)=>{const fz=z.file(base+nome); return fz?new Blob([await fz.async("arraybuffer")],{type:tipo}):null};
+      if(arquivos.capa) l.capa=await ler("capa.jpg","image/jpeg");
+      if(arquivos.pdf) l.pdf=await ler("livro.pdf","application/pdf");
+      const salvos=[];
+      for(const i of meta.salvos){const b=await ler(i+".mp3","audio/mpeg"); if(b){await idb.put("audios",b,`${meta.id}:${i}`); salvos.push(i)}}
+      l.salvos=salvos; if(atual&&atual.etiquetas&&!l.etiquetas) l.etiquetas=atual.etiquetas;
+      await idb.put("livros",l); novos++;
+    }
+  }catch(e){
+    const cheio=e&&(e.name==="QuotaExceededError"||/quota/i.test(e.message||""));
+    msg(el,cheio?`Acabou o espaço neste aparelho no meio da restauração (${novos} livro(s) restaurados). Libere espaço ou exclua livros e tente de novo.`:"Algo deu errado ao restaurar. O arquivo pode estar incompleto.",true);
+    mostrarBiblioteca(); return}
+  if(man.local){const L=man.local;
+    const pr=ls.get("pron",[]), ja=new Set(pr.map(p=>(p[0]||"").toLowerCase())); ls.set("pron",[...pr,...(L.pron||[]).filter(p=>!ja.has((p[0]||"").toLowerCase()))]);
+    if(L.speed!=null&&ls.get("speed",null)==null) ls.set("speed",L.speed);
+    if(L.audiofx&&!ls.get("audiofx",null)) ls.set("audiofx",L.audiofx);
+    if(L.stats){const s=stats(); Object.entries(L.stats.dias||{}).forEach(([k,v])=>s.dias[k]=Math.max(s.dias[k]||0,v)); Object.assign(s.fim,Object.fromEntries(Object.entries(L.stats.fim||{}).filter(([k])=>!s.fim[k]))); ls.set("stats",s)}}
+  await mostrarBiblioteca();
+  if(!$("library").hidden) msg($("upMsg"),"");
+  msg($("library").hidden?$("upMsg"):$("libMsg"),`Backup restaurado: ${novos} livro(s) adicionados`+(iguais?`, ${iguais} já estava(m) aqui`:"")+".");
+}
+$("bkpAll").onclick=()=>fazerBackup(null);
+$("bkpRest").onclick=$("bkpRest2").onclick=()=>$("bkpFile").click();
+$("bkpFile").onchange=e=>{restaurar(e.target.files[0]); e.target.value=""};
+listaTags().catch(()=>{});
+
+
+/* ================= texto acompanhando o áudio ================= */
+let legAtual=null, legCap=-1, legTimes=null, legSpans=[], legIdx=-1, manualAte=0, rafId=0;
+const legMem={};
+async function legendaDe(i){
+  if(livro.legendas&&livro.legendas[i]) return livro.legendas[i];
+  const k=livro.id+":"+i; if(legMem[k]) return legMem[k];
+  if(livro.job&&!serverGone){try{const r=await fetch(`/legenda/${livro.job}/${i}`); if(r.ok){const f=(await r.json()).frases; if(f&&f.length) return legMem[k]=f}}catch(e){}}
+  return null;
+}
+let fs=ls.get("fonteLeitura",1.15);
+function aplicarFonte(){$("leitura").style.setProperty("--fs",fs+"rem")}
+$("fontMenos").onclick=()=>{fs=Math.max(.9,+(fs-.1).toFixed(2)); ls.set("fonteLeitura",fs); aplicarFonte()};
+$("fontMais").onclick=()=>{fs=Math.min(2.2,+(fs+.1).toFixed(2)); ls.set("fonteLeitura",fs); aplicarFonte()};
+$("readFull").onclick=()=>{const c=$("readCard"), on=!c.classList.contains("full"); c.classList.toggle("full",on); document.body.style.overflow=on?"hidden":"";
+  $("readFull").textContent=on?"Sair da tela cheia":"Tela cheia"; manualAte=0; seguir(true)};
+aplicarFonte();
+async function mostrarLeitura(i){
+  if(!livro||!livro.id||!livro.capitulos[i]) return;
+  $("readCard").hidden=false;
+  if(legCap===i&&legAtual) {calcTempos(); return}
+  legCap=i; legAtual=null; legTimes=null; legIdx=-1; legSpans=[];
+  const box=$("leitura"); box.innerHTML='<p class="empty">Carregando o texto…</p>';
+  $("readSub").textContent=`Capítulo ${i+1} · ${livro.capitulos[i].titulo}`;
+  const f=await legendaDe(i); if(legCap!==i) return;
+  box.innerHTML="";
+  if(!f){box.innerHTML='<p class="empty">O texto deste capítulo aparece aqui quando ele terminar de ser narrado. Livros gerados antes desta atualização não têm o texto: envie o livro de novo para gerar com ele.</p>'; return}
+  legAtual=f; let p=null;
+  legSpans=f.map((u,k)=>{if(u.p||!p){p=document.createElement("p"); box.appendChild(p)}
+    const s=document.createElement("span"); s.className="fr"; s.textContent=u.s+" "; s.dataset.k=k; p.appendChild(s); return s});
+  calcTempos(); seguir(true);
+}
+function calcTempos(){
+  if(!legAtual) return; const n=legAtual.length, D=(legCap===cur&&isFinite(au.duration))?au.duration:null;
+  const len=legAtual.map(u=>Math.max(1,u.s.length)), t=legAtual.map(u=>u.t);
+  if(t[0]==null) t[0]=0;
+  for(let a=1;a<n;a++){ if(t[a]!=null) continue;
+    let b=a; while(b<n&&t[b]==null) b++;
+    let C=0; for(let j=a-1;j<b;j++) C+=len[j];
+    const t0=t[a-1], t1=b<n?t[b]:(D!=null?D:t0+C/15);
+    let acc=len[a-1]; for(let j=a;j<b;j++){t[j]=t0+(t1-t0)*acc/C; acc+=len[j]}
+    a=b; }
+  for(let j=1;j<n;j++) if(t[j]<t[j-1]) t[j]=t[j-1];
+  legTimes=t;
+}
+function idxEm(s){if(!legTimes) return -1; let lo=0,hi=legTimes.length-1,r=0; while(lo<=hi){const m=(lo+hi)>>1; if(legTimes[m]<=s+0.08){r=m;lo=m+1}else hi=m-1} return r}
+function seguir(forcar){
+  if(!legTimes||legCap!==cur||cur<0) return;
+  const k=idxEm(au.currentTime); if(k===legIdx&&!forcar) return;
+  if(legSpans[legIdx]) legSpans[legIdx].classList.remove("now");
+  legIdx=k; const sp=legSpans[k]; if(!sp) return; sp.classList.add("now");
+  if(Date.now()>manualAte&&!$("readCard").hidden){const box=$("leitura");
+    box.scrollTo({top:Math.max(0,sp.offsetTop-box.clientHeight/2+sp.offsetHeight/2),behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"})}
+}
+function loopLeitura(){seguir(); if(!au.paused) rafId=requestAnimationFrame(loopLeitura)}
+au.addEventListener("play",()=>{cancelAnimationFrame(rafId); rafId=requestAnimationFrame(loopLeitura)});
+au.addEventListener("seeked",()=>{manualAte=0; seguir(true)});
+au.addEventListener("loadedmetadata",()=>{if(legCap===cur){calcTempos(); seguir(true)}});
+["wheel","touchmove","keydown"].forEach(ev=>$("leitura").addEventListener(ev,()=>{manualAte=Date.now()+5000; $("voltarAqui").hidden=false},{passive:true}));
+$("voltarAqui").onclick=()=>{manualAte=0; $("voltarAqui").hidden=true; seguir(true)};
+setInterval(()=>{if(Date.now()>manualAte) $("voltarAqui").hidden=true},1000);
+$("leitura").addEventListener("click",e=>{const s=e.target.closest(".fr"); if(!s||!legTimes) return;
+  const k=+s.dataset.k; manualAte=0;
+  if(legCap===cur){au.currentTime=legTimes[k]; if(au.paused) au.play()} else tocar(legCap,Math.max(.01,legTimes[k]))});
+
+/* ================= "Onde eu estava?" ================= */
+function ondeEuEstava(){
+  if(cur<0) return;
+  if(legTimes&&legCap===cur){const k=Math.max(0,idxEm(au.currentTime)-1); au.currentTime=legTimes[k]}
+  else au.currentTime=Math.max(0,au.currentTime-12);
+  manualAte=0; if(au.paused) au.play(); aviso("Repetindo as últimas frases");
+}
+$("pWhere").onclick=ondeEuEstava; $("carWhere").onclick=ondeEuEstava;
+
+/* ================= prévia do capítulo ================= */
+const durCache={};
+function duracao(i){const k=livro.id+":"+i; return durCache[k]||(durCache[k]=new Promise(async res=>{
+  const a=new Audio(); a.preload="metadata"; a.onloadedmetadata=()=>res(a.duration); a.onerror=()=>res(null); a.src=await fonte(i)}))}
+async function previa(li,i){
+  const old=li.querySelector(".prevw"); if(old){old.remove(); li.querySelector(".t").setAttribute("aria-expanded","false"); return}
+  li.querySelector(".t").setAttribute("aria-expanded","true");
+  const d=document.createElement("div"); d.className="prev prevw"; d.textContent="Carregando a prévia…"; li.appendChild(d);
+  const ok=estado(i).ok, c=livro.capitulos[i];
+  const [f,dur]=ok?await Promise.all([legendaDe(i),duracao(i)]):[null,null];
+  d.innerHTML=`<div class="pv-h"><b></b><span></span></div><p class="pv-l"></p><div class="pv-a"></div>`;
+  d.querySelector("b").textContent=dur?`Duração: ${fmt(dur)}`:`Duração aproximada: ${c.minutos} min`;
+  d.querySelector(".pv-h span").textContent=f?`${f.length} frases`:"";
+  d.querySelector(".pv-l").textContent=f?f.slice(0,3).map(u=>u.s).join(" ")+(f.length>3?" …":""):
+    ok?"Este capítulo foi gerado antes desta atualização, então não tem o texto salvo.":"As primeiras linhas aparecem quando o capítulo terminar de ser narrado.";
+  if(ok){const b=document.createElement("button"); b.className="go"; b.textContent="▶ Ouvir este capítulo"; b.onclick=()=>tocar(i,0.01); d.querySelector(".pv-a").appendChild(b)}
+}
+
+/* ================= relógio e tela de bloqueio ================= */
+let artURL=null, artDe=null;
+async function arteSessao(){
+  const cv=document.createElement("canvas"); cv.width=cv.height=512; const x=cv.getContext("2d");
+  x.fillStyle="#1d3b36"; x.fillRect(0,0,512,512);
+  let desenhou=false;
+  if(coverURL){try{const im=new Image(); im.src=coverURL; await im.decode();
+    const h=440, w=Math.min(440,h*im.width/im.height); x.drawImage(im,(512-w)/2,(512-h)/2,w,h); desenhou=true}catch(e){}}
+  if(!desenhou){x.fillStyle="#f1e3bd"; x.font="44px Georgia, serif"; x.textAlign="center";
+    const pal=livro.titulo.split(/\s+/), linhas=[]; let l="";
+    pal.forEach(p=>{if(x.measureText(l+" "+p).width>420&&l){linhas.push(l); l=p} else l=(l?l+" ":"")+p}); linhas.push(l);
+    linhas.slice(0,5).forEach((t,k)=>x.fillText(t,256,256-(Math.min(linhas.length,5)-1)*27+k*54));
+    x.fillStyle="#dcb35e"; x.font="600 22px sans-serif"; x.fillText("VOX",256,470)}
+  return cv.toDataURL("image/jpeg",.85);
+}
+async function atualizarSessao(i){
+  if(!("mediaSession" in navigator)||!livro) return;
+  try{if(artDe!==livro.id+(coverURL||"")){artURL=await arteSessao(); artDe=livro.id+(coverURL||"")}
+    navigator.mediaSession.metadata=new MediaMetadata({title:`${i+1}. ${livro.capitulos[i].titulo}`,artist:livro.titulo,album:"VOX",artwork:[{src:artURL,sizes:"512x512",type:"image/jpeg"}]})}catch(e){}
+}
+function posicaoSessao(){if(!("mediaSession" in navigator)) return;
+  try{navigator.mediaSession.playbackState=au.paused?"paused":"playing"}catch(e){}
+  try{if(isFinite(au.duration)&&au.duration>0) navigator.mediaSession.setPositionState({duration:au.duration,playbackRate:au.playbackRate||1,position:Math.min(au.currentTime,au.duration)})}catch(e){}}
+["loadedmetadata","seeked","ratechange","play","pause"].forEach(ev=>au.addEventListener(ev,posicaoSessao));
+if("mediaSession" in navigator){const ms=navigator.mediaSession; const h=(a,f)=>{try{ms.setActionHandler(a,f)}catch(e){}};
+  h("seekbackward",d=>{pular(-((d&&d.seekOffset)||15)); posicaoSessao()});
+  h("seekforward",d=>{pular((d&&d.seekOffset)||15); posicaoSessao()});
+  h("seekto",d=>{if(d.fastSeek&&"fastSeek" in au) au.fastSeek(d.seekTime); else au.currentTime=d.seekTime; posicaoSessao()});
+  h("stop",()=>{au.pause(); posicaoSessao()});}
+
+/* ================= despertador com livro ================= */
+let alarme=null, alWake=null;
+const prefA=ls.get("alarmePref",{hora:"07:00",onde:"pos",rampa:"3"});
+$("alHora").value=prefA.hora; $("alOnde").value=prefA.onde; $("alRampa").value=prefA.rampa;
+function painel(id){["fxPanel","markDlg","alarmPanel"].forEach(p=>{if(p!==id) $(p).hidden=true}); $(id).hidden=!$(id).hidden}
+$("pAlarm").onclick=()=>painel("alarmPanel"); $("alFechar").onclick=()=>$("alarmPanel").hidden=true;
+function proximo(hhmm){const [h,m]=hhmm.split(":").map(Number); const d=new Date(); d.setHours(h||0,m||0,0,0); if(d.getTime()<=Date.now()) d.setDate(d.getDate()+1); return d.getTime()}
+function volumeMestre(v,rampaSeg){
+  if(fx&&fx.mestre){const g=fx.mestre.gain, t=actx.currentTime; g.cancelScheduledValues(t); g.setValueAtTime(g.value,t);
+    if(rampaSeg) {g.setValueAtTime(v,t); g.linearRampToValueAtTime(1,t+rampaSeg)} else g.setValueAtTime(v,t)}
+  else au.volume=v;
+}
+async function manterAceso(){try{alWake=await navigator.wakeLock.request("screen")}catch(e){}}
+$("alAtivar").onclick=async()=>{
+  if(cur<0||!livro) return;
+  const pref={hora:$("alHora").value||"07:00",onde:$("alOnde").value,rampa:$("alRampa").value}; ls.set("alarmePref",pref);
+  if(ensureFx()){try{await actx.resume()}catch(e){}}
+  let cap=cur, t=Math.floor(au.currentTime||0);
+  if(pref.onde==="cap") t=0;
+  if(pref.onde==="prox"&&livro.capitulos[cur+1]&&estado(cur+1).ok){cap=cur+1; t=0}
+  volumeMestre(0); try{await au.play()}catch(e){} au.pause(); au.currentTime=Math.max(0,au.currentTime-0.1); // libera o som agora, dentro do toque
+  alarme={quando:proximo(pref.hora),cap,t,rampa:+pref.rampa,tocando:false};
+  $("alarmPanel").hidden=true; $("alAt").textContent=pref.hora; $("alBook").textContent=`${livro.titulo} · cap. ${cap+1}`;
+  $("alArmed").hidden=false; $("alRinging").hidden=true; $("alarm").classList.remove("ringing"); $("alarm").hidden=false;
+  document.body.style.overflow="hidden"; manterAceso(); try{await document.documentElement.requestFullscreen()}catch(e){}
+  tickAlarme();
+};
+function fecharAlarme(){alarme=null; $("alarm").hidden=true; document.body.style.overflow=""; volumeMestre(1);
+  try{alWake&&alWake.release()}catch(e){} alWake=null; try{document.fullscreenElement&&document.exitFullscreen()}catch(e){}}
+async function disparar(){
+  alarme.tocando=true; $("alarm").classList.add("ringing"); $("alArmed").hidden=true; $("alRinging").hidden=false;
+  if(ensureFx()){try{await actx.resume()}catch(e){}}
+  volumeMestre(0.03,alarme.rampa*60); alarme.inicio=Date.now();
+  await tocar(alarme.cap,Math.max(.01,alarme.t));
+}
+function tickAlarme(){
+  if(!alarme) return; const agora=new Date();
+  $("alClock").textContent=agora.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});
+  if(!alarme.tocando){const falta=Math.max(0,alarme.quando-agora.getTime())/60000;
+    $("alSub").textContent=falta<1?"tocando em instantes":`toca em ${falta<60?Math.ceil(falta)+" min":Math.floor(falta/60)+" h "+String(Math.ceil(falta%60)).padStart(2,"0")+" min"}`;
+    if(agora.getTime()>=alarme.quando) disparar()}
+  else {$("alSub").textContent="Bom dia! O volume vai subindo aos poucos.";
+    if(!fx&&alarme.inicio){au.volume=Math.min(1,0.03+(Date.now()-alarme.inicio)/(alarme.rampa*60000))}}
+}
+setInterval(tickAlarme,1000);
+$("alCancel").onclick=fecharAlarme;
+$("alStop").onclick=()=>{au.pause(); fecharAlarme(); aviso("Despertador desligado")};
+$("alKeep").onclick=()=>{fecharAlarme(); aviso("Bom dia! Continuando a leitura")};
+$("alSnooze").onclick=()=>{au.pause(); alarme.cap=cur; alarme.t=Math.max(0,Math.floor(au.currentTime)-5); alarme.quando=Date.now()+10*60000; alarme.tocando=false;
+  volumeMestre(0); $("alarm").classList.remove("ringing"); $("alArmed").hidden=false; $("alRinging").hidden=true; tickAlarme()};
+document.addEventListener("visibilitychange",()=>{if(alarme&&document.visibilityState==="visible") manterAceso()});
 
 mostrarBiblioteca();
 

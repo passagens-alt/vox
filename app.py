@@ -42,10 +42,15 @@ MOTOR = {v[0]: v[3] for v in VOZES}
 
 
 async def _edge(texto, voz, velocidade, arquivo):
-    com = edge_tts.Communicate(texto, voz, rate=f"{velocidade:+d}%")
+    """Narra e devolve o tempo de cada palavra [(segundos, palavra)], para o texto acompanhar o áudio."""
+    com = edge_tts.Communicate(texto, voz, rate=f"{velocidade:+d}%", boundary="WordBoundary")
+    marcas = []
     async for p in com.stream():
         if p["type"] == "audio":
             arquivo.write(p["data"])
+        elif p["type"] in ("WordBoundary", "SentenceBoundary"):
+            marcas.append((p["offset"] / 1e7, p["text"]))
+    return marcas
 
 
 def _post(url, headers, corpo):
@@ -55,6 +60,7 @@ def _post(url, headers, corpo):
 
 
 def narrar_trecho(texto, voz, velocidade, arquivo):
+    """Escreve o MP3 do trecho em `arquivo`. Devolve os tempos das palavras (só nas vozes do Edge) ou None."""
     motor = MOTOR.get(voz, "edge")
     if motor == "openai":
         arquivo.write(_post("https://api.openai.com/v1/audio/speech",
@@ -67,12 +73,14 @@ def narrar_trecho(texto, voz, velocidade, arquivo):
                             {"xi-api-key": os.environ["ELEVENLABS_API_KEY"], "Accept": "audio/mpeg"},
                             {"text": texto, "model_id": "eleven_multilingual_v2"}))
     else:
+        inicio = arquivo.tell()
         try:
-            asyncio.run(_edge(texto, voz, velocidade, arquivo))
+            return asyncio.run(_edge(texto, voz, velocidade, arquivo))
         except Exception:
             if voz == VOZ_PADRAO:
                 raise
-            asyncio.run(_edge(texto, VOZ_PADRAO, velocidade, arquivo))  # voz indisponível: usa a Francisca
+            arquivo.seek(inicio); arquivo.truncate()
+            return asyncio.run(_edge(texto, VOZ_PADRAO, velocidade, arquivo))  # voz indisponível: usa a Francisca
 
 
 # ---------------------------------------------------------------- utilidades
@@ -97,23 +105,103 @@ def nome_arquivo(t):
 
 
 # ---------------------------------------------------------------- trabalho em segundo plano
+EDGE_BYTES_POR_SEG = 48000 / 8  # as vozes do Edge vêm em MP3 de 48 kbps, taxa fixa
+
+
+MAIUSC = "A-ZÁÉÍÓÚÂÊÔÃÕÇ"
+ABREV = re.compile(r"(?:^|\s)(?:sr|sra|srta|dr|dra|prof|profa|av|st|sto|sta|n[ºo]|p|pp|cap|vol|ed|etc|ex|obs|[A-Z])\.$", re.I)
+
+
+def frases(t):
+    """Divide em frases sem quebrar em abreviações (Dr., Sra., J. R.) nem em '— disse ela'."""
+    pedacos = re.split(rf"(?<=[.!?…])\s+(?=[\"“«(]|[—–]\s*[{MAIUSC}]|[{MAIUSC}0-9])", t.strip())
+    out = []
+    for p in pedacos:
+        if out and ABREV.search(out[-1]):
+            out[-1] += " " + p
+        elif p.strip():
+            out.append(p)
+    return out
+
+
+def unidades(texto, voz, voz_dialogo, pron):
+    """Divide o capítulo em frases: o que aparece na tela (s), o que é falado (f), a voz (v) e se abre parágrafo (p)."""
+    out = []
+    for par in texto.split("¶"):
+        par = par.strip()
+        if not par:
+            continue
+        primeira = True
+        if voz_dialogo and voz_dialogo != voz:
+            travessao = par[0] in "—–"
+            segs = []
+            for tipo, seg in segmentar("¶" + par):
+                mostra = ("— " + seg) if travessao else (f"“{seg}”" if tipo == "d" else seg)
+                segs.append((voz_dialogo if tipo == "d" else voz, seg, mostra))
+        else:
+            segs = [(voz, par, par)]
+        for v, seg, mostra in segs:
+            falas, telas = frases(seg), frases(mostra)
+            if len(falas) != len(telas):
+                falas, telas = [seg], [mostra]
+            for f, t in zip(falas, telas):
+                fala = sem_marcas(pronunciar(f, pron)).strip()
+                if fala:
+                    out.append({"v": v, "s": t, "f": fala, "p": primeira})
+                    primeira = False
+    return out
+
+
+def blocos_de(unids, limite_por_voz):
+    """Junta frases seguidas da mesma voz em blocos de até ~3000 letras."""
+    bl = []
+    for u in unids:
+        lim = limite_por_voz(u["v"])
+        if bl and bl[-1]["v"] == u["v"] and len(bl[-1]["texto"]) + len(u["f"]) + 1 <= lim:
+            u["pos"] = len(bl[-1]["texto"]) + 1
+            bl[-1]["texto"] += " " + u["f"]; bl[-1]["us"].append(u)
+        else:
+            u["pos"] = 0
+            bl.append({"v": u["v"], "texto": u["f"], "us": [u]})
+    return bl
+
+
+def alinhar(bloco, marcas, inicio):
+    """Dá a cada frase do bloco o tempo (em segundos, no arquivo do capítulo) da sua primeira palavra."""
+    pos, cursor, txt = [], 0, bloco["texto"]
+    for t, palavra in marcas:
+        i = txt.find(palavra, cursor)
+        if i >= 0:
+            pos.append((i, t)); cursor = i + len(palavra)
+    k = 0
+    for u in bloco["us"]:
+        while k < len(pos) and pos[k][0] < u["pos"]:
+            k += 1
+        u["t"] = round(inicio + pos[k][1], 2) if k < len(pos) else None
+
+
 def trabalhar(job_id):
     job = JOBS[job_id]
     try:
         for n, cap in enumerate(job["capitulos"]):
             cap["status"] = "narrando"
-            texto = pronunciar(cap["texto"], job["pron"])
-            vd = job.get("voz_dialogo")
-            if vd and vd != job["voz"]:  # narrador + outra voz nas falas
-                trechos = [(vd if tipo == "d" else job["voz"], t) for tipo, t in segmentar(texto)]
-            else:
-                trechos = [(job["voz"], sem_marcas(texto))]
-            partes = [(v, b) for v, t in trechos for b in blocos(t, 3800 if MOTOR.get(v) == "openai" else 3000)]
+            unids = unidades(cap["texto"], job["voz"], job.get("voz_dialogo"), job["pron"])
+            partes = blocos_de(unids, lambda v: 3800 if MOTOR.get(v) == "openai" else 3000)
             caminho = os.path.join(PASTA, f"{job_id}-{n:03d}.mp3")
+            tempo_ok = True  # o tempo de início de cada bloco só é exato enquanto tudo vem do Edge
             with open(caminho, "wb") as mp3:
-                for i, (v, parte) in enumerate(partes, 1):
-                    narrar_trecho(parte, v, job["velocidade"], mp3)
+                for i, bl in enumerate(partes, 1):
+                    inicio = mp3.tell() / EDGE_BYTES_POR_SEG
+                    marcas = narrar_trecho(bl["texto"], bl["v"], job["velocidade"], mp3)
+                    try:  # a sincronia do texto nunca pode atrapalhar a narração
+                        if tempo_ok and isinstance(marcas, list) and marcas:
+                            alinhar(bl, marcas, inicio)
+                        else:
+                            tempo_ok = False
+                    except Exception:
+                        tempo_ok = False
                     cap["progresso"] = round(100 * i / len(partes))
+            cap["legenda"] = [{"s": u["s"], "t": u.get("t"), **({"p": 1} if u["p"] else {})} for u in unids]
             cap.update(status="pronto", caminho=caminho)
         job["status"] = "pronto"
     except Exception as e:  # noqa: BLE001
@@ -151,6 +239,21 @@ def ler_arquivo(arq, limpar_on):
 
 
 # ---------------------------------------------------------------- rotas
+@app.get("/ping")
+def ping():
+    return "ok"
+
+
+@app.errorhandler(413)
+def grande_demais(_):
+    return jsonify(erro="O arquivo passa do limite de 80 MB. Tente uma versão menor."), 413
+
+
+@app.errorhandler(500)
+def erro_interno(_):
+    return jsonify(erro="Algo deu errado ao ler este arquivo. Tente de novo; se repetir, tente outro arquivo."), 500
+
+
 @app.get("/")
 def inicio():
     return render_template("index.html", vozes=VOZES, padrao=VOZ_PADRAO)
@@ -242,6 +345,15 @@ def audio(job_id, n):
     nome = f"{n + 1:02d}-{nome_arquivo(cap['titulo'])}.mp3"
     return send_file(cap["caminho"], mimetype="audio/mpeg", as_attachment=bool(request.args.get("baixar")),
                      download_name=nome, conditional=True)
+
+
+@app.get("/legenda/<job_id>/<int:n>")
+def legenda(job_id, n):
+    """Frases do capítulo com o segundo em que cada uma começa (para o texto acompanhar o áudio)."""
+    job = JOBS.get(job_id) or abort(404)
+    if n >= len(job["capitulos"]) or job["capitulos"][n]["status"] != "pronto":
+        abort(404)
+    return jsonify(frases=job["capitulos"][n].get("legenda", []))
 
 
 @app.get("/zip/<job_id>")
