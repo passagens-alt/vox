@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Clube do livro · VOX</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Instrument+Sans:wght@400;500;600&family=Literata:opsz,wght@7..72,400;7..72,500&display=swap">
+<style>
+:root{
+  --bg:#eef0f3; --card:#fff; --ink:#18202e; --muted:#5b6475; --line:#dde1e8;
+  --cover:#1d3b36; --cover2:#14302b; --gold:#b98a2c; --gold-soft:#f4e6c4; --ok:#2f7a55; --bad:#b4413a;
+  --display:"Young Serif",Georgia,serif; --ui:"Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif; --read:"Literata",Georgia,serif;
+  --shadow:0 1px 2px rgba(20,30,50,.06),0 8px 24px rgba(20,30,50,.06);
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#0f141c; --card:#161d28; --ink:#e8ebf0; --muted:#9aa3b2; --line:#263040;
+  --cover:#1f4a43; --cover2:#163a34; --gold:#dcb35e; --gold-soft:#3d331b; --ok:#6cc79a; --bad:#e8857d;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25); color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--ui);font-size:15px;line-height:1.55;padding:0 16px 150px}
+[hidden]{display:none!important}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.wrap{max-width:1040px;margin:0 auto;display:flex;flex-direction:column;gap:22px;padding-block:22px 40px}
+.top{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.logo{font-family:var(--display);font-size:2rem;letter-spacing:.08em;line-height:1;text-decoration:none;color:var(--ink)}
+.logo b{color:var(--gold);font-weight:400}
+.top a.ir{color:var(--gold);font-weight:600;text-decoration:none}
+.card{background:var(--card);border-radius:18px;box-shadow:var(--shadow);padding:24px}
+@media (max-width:520px){.card{padding:18px}}
+h2{font-family:var(--display);font-weight:400;font-size:1.3rem;margin:0 0 4px}
+.sub{color:var(--muted);margin:0}
+.eyebrow{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:600}
+.hero{display:grid;grid-template-columns:150px 1fr;gap:26px;align-items:center}
+@media (max-width:620px){.hero{grid-template-columns:1fr;justify-items:center;text-align:center}}
+.cv{width:150px;aspect-ratio:2/3;border-radius:3px 8px 8px 3px;position:relative;overflow:hidden;background:linear-gradient(90deg,var(--cover2) 0 9%,var(--cover) 9%);
+  box-shadow:0 12px 26px rgba(10,20,30,.28);color:#f1e3bd;display:flex;align-items:flex-end;padding:14px 10px 14px 20px;font-family:var(--display);line-height:1.15}
+.cv img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.hero h1{font-family:var(--display);font-weight:400;font-size:clamp(1.5rem,3.5vw,2.2rem);line-height:1.1;margin:4px 0 4px;overflow-wrap:anywhere}
+.au{color:var(--muted);margin:0 0 10px}
+.acts{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:12px}
+@media (max-width:620px){.acts{justify-content:center}}
+.go{display:inline-flex;align-items:center;gap:8px;background:var(--cover);color:#fff;border:0;border-radius:999px;padding:12px 22px;font-weight:600;cursor:pointer}
+.go:disabled{opacity:.5;cursor:default}
+.ghost{background:transparent;border:1px solid var(--line);border-radius:999px;padding:10px 16px;cursor:pointer;font-weight:500;color:var(--ink);text-decoration:none;display:inline-flex;gap:6px;align-items:center}
+.ghost:hover{border-color:var(--gold)}
+.mini{font-size:.8rem;border:1px solid var(--line);background:transparent;border-radius:999px;padding:4px 10px;cursor:pointer}
+.mini:hover{border-color:var(--gold)}
+.msg{padding:12px 16px;border-radius:12px;background:var(--gold-soft);margin:0}
+.msg.err{color:var(--bad)}
+.nome{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:12px;font-size:.9rem}
+@media (max-width:620px){.nome{justify-content:center}}
+input,textarea,select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:22px;align-items:start}
+@media (max-width:860px){.grid{grid-template-columns:1fr}}
+.chs{list-style:none;margin:0;padding:0}
+.ch{display:grid;grid-template-columns:30px 1fr auto;gap:10px;align-items:center;padding:10px 6px;border-top:1px solid var(--line);border-radius:8px}
+.ch:first-child{border-top:0}
+.ch .n{font-family:var(--display);color:var(--muted);text-align:center}
+.ch .t{min-width:0}.ch .t div{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ch .t small{color:var(--muted)}
+.ch.on{background:color-mix(in srgb,var(--gold-soft) 55%,transparent)}.ch.on .n{color:var(--gold)}
+.ib{all:unset;cursor:pointer;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--line)}
+.ib[aria-disabled=true]{opacity:.35;pointer-events:none}
+.ib svg{width:16px;height:16px;fill:currentColor}
+.pill{font-size:.72rem;color:var(--gold);font-weight:600}
+.leitura{max-height:min(48vh,440px);overflow:auto;position:relative;margin-top:10px}
+.leitura p{margin:0 0 1em;font-family:var(--read);font-size:1.05rem;line-height:1.75}
+.fr{cursor:pointer;border-radius:4px}.fr.now{background:var(--gold-soft);box-shadow:0 0 0 3px var(--gold-soft)}
+.fr.extra{font-style:italic;color:var(--muted)}
+.leitura p:has(.cena){text-align:center;letter-spacing:.4em;color:var(--muted)}
+.coms{list-style:none;margin:10px 0 0;padding:0;display:flex;flex-direction:column;gap:2px;max-height:min(56vh,520px);overflow:auto}
+.cm{padding:10px 4px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:4px}
+.cm:first-child{border-top:0}
+.cm.resp{margin-left:26px;border-top:0;padding-top:2px}
+.cm-h{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:.82rem}
+.cm-h b{font-weight:600}
+.cm-h .dono{font-size:.68rem;background:var(--gold-soft);color:var(--ink);border-radius:999px;padding:1px 7px}
+.cm-h .ir{all:unset;cursor:pointer;color:var(--gold);font-weight:600;font-variant-numeric:tabular-nums}
+.cm-t{margin:0;overflow-wrap:anywhere;white-space:pre-wrap}
+.cm .resp-b{all:unset;cursor:pointer;font-size:.78rem;color:var(--muted)}
+.cm .resp-b:hover{color:var(--ink)}
+.cm.pend .cm-h::after{content:"enviando…";font-size:.72rem;color:var(--muted)}
+.vazio{color:var(--muted);margin:10px 0 0}
+.tabs{display:flex;gap:6px;margin-top:8px}
+.tab{border:1px solid var(--line);background:transparent;border-radius:999px;padding:5px 12px;cursor:pointer;font-size:.85rem}
+.tab[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.compor{display:flex;flex-direction:column;gap:8px;margin-top:12px;background:var(--bg);border-radius:12px;padding:12px}
+.compor textarea{width:100%;min-height:70px;resize:vertical;background:var(--card)}
+.compor .linha{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap;font-size:.82rem;color:var(--muted)}
+.player{position:fixed;left:0;right:0;bottom:0;z-index:20;padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));background:color-mix(in srgb,var(--card) 94%,transparent);backdrop-filter:blur(10px);border-top:1px solid var(--line)}
+.pin{max-width:1040px;margin:0 auto;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:16px;align-items:center}
+@media (max-width:700px){.pin{display:flex;flex-wrap:wrap;gap:8px}.pin .pi{order:-1;flex:1 1 100%}.pin .ctrl{flex:1;justify-content:center}}
+.ctrl{display:flex;gap:4px;align-items:center}
+.pl{all:unset;cursor:pointer;width:46px;height:46px;border-radius:50%;background:var(--ink);color:var(--bg);display:grid;place-items:center}
+.pl svg{width:20px;height:20px;fill:currentColor}
+.sk{all:unset;cursor:pointer;min-width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-size:.78rem;font-weight:600}
+.pi{min-width:0;display:flex;flex-direction:column;gap:4px}
+.pi .a{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pi input[type=range]{width:100%;accent-color:var(--gold);padding:0;border:0;background:none}
+.tm{display:flex;justify-content:space-between;font-size:.75rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 18px);transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:999px;font-weight:600;z-index:60;max-width:calc(100vw - 32px)}
+.dormindo{text-align:center;display:flex;flex-direction:column;gap:12px;align-items:center;padding:40px 24px}
+.dormindo .z{font-size:2.6rem}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><a class="logo" href="/">VO<b>X</b></a><a class="ir" href="/">Abrir o VOX →</a></div>
+
+  <section class="card dormindo" id="estado">
+    <div class="z" id="estZ">⏳</div><h2 id="estT">Abrindo o clube…</h2><p class="sub" id="estS">Se o site estava parado, pode levar até 1 minuto.</p>
+    <button class="ghost" id="tentar" hidden>Tentar de novo</button>
+  </section>
+
+  <section class="card" id="heroCard" hidden>
+    <div class="hero">
+      <div class="cv" id="cv"><span id="cvT"></span></div>
+      <div>
+        <div class="eyebrow" id="dono"></div>
+        <h1 id="titulo"></h1>
+        <p class="au" id="autor" hidden></p>
+        <p class="sub" id="resumo"></p>
+        <div class="acts"><button class="go" id="ouvir">▶ Começar a ouvir</button><button class="ghost" id="guardar">📥 Guardar na minha biblioteca</button></div>
+        <div class="nome"><label for="nome">Seu nome no clube:</label><input id="nome" maxlength="40" placeholder="Como os outros vão te ver"></div>
+        <p class="msg" id="guardarMsg" hidden></p>
+      </div>
+    </div>
+  </section>
+
+  <div class="grid" id="corpo" hidden>
+    <section class="card">
+      <h2>Capítulos</h2>
+      <ol class="chs" id="chs"></ol>
+      <h2 style="margin-top:18px">Texto</h2>
+      <p class="sub" id="leitSub">Toque numa frase para ouvir dali.</p>
+      <div class="leitura" id="leitura"></div>
+    </section>
+    <section class="card">
+      <h2>Conversa</h2>
+      <p class="sub">Comente um trecho: o comentário fica preso ao momento do áudio, e todos do clube veem.</p>
+      <div class="tabs"><button class="tab" id="tabCap" aria-pressed="true">Este capítulo</button><button class="tab" id="tabTodos" aria-pressed="false">Todos</button></div>
+      <ul class="coms" id="coms"></ul>
+      <p class="vazio" id="semComs">Ninguém comentou este capítulo ainda. Que tal começar?</p>
+      <div class="compor">
+        <div class="linha"><span id="ondeCom">Comentar no começo do capítulo 1</span><button class="mini" id="cancResp" hidden>Cancelar resposta</button></div>
+        <textarea id="txt" maxlength="1000" placeholder="O que você achou deste trecho?" aria-label="Seu comentário"></textarea>
+        <div class="linha"><span id="comMsg"></span><button class="go" id="enviar">Comentar</button></div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<div class="player" id="player" hidden>
+  <div class="pin">
+    <div class="ctrl">
+      <button class="sk" id="pB" aria-label="Voltar 15 segundos">↺15</button>
+      <button class="pl" id="pP" aria-label="Tocar"><svg viewBox="0 0 24 24" id="pI"><path d="M8 5v14l11-7z"/></svg></button>
+      <button class="sk" id="pF" aria-label="Avançar 15 segundos">15↻</button>
+    </div>
+    <div class="pi"><div class="a" id="pT"></div><input type="range" id="seek" min="0" max="1000" value="0" aria-label="Posição"><div class="tm"><span id="tN">0:00</span><span id="tE">0:00</span></div></div>
+    <select id="vel" aria-label="Velocidade"><option value="0.75">0,75×</option><option value="1" selected>1×</option><option value="1.25">1,25×</option><option value="1.5">1,5×</option><option value="2">2×</option></select>
+  </div>
+</div>
+<div class="toast" id="toast" hidden role="status"></div>
+<audio id="au" preload="metadata"></audio>
+
+<script>
+const CID={{ cid|tojson }};
+const $=id=>document.getElementById(id);
+const PLAY='<path d="M8 5v14l11-7z"/>', PAUSE='<path d="M6 5h4v14H6zm8 0h4v14h-4z"/>', PLAYS='<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+const fmt=s=>isFinite(s)?Math.floor(s/60)+":"+String(Math.floor(s%60)).padStart(2,"0"):"0:00";
+const ls={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+function msg(el,t,err){el.textContent=t;el.hidden=!t;el.classList.toggle("err",!!err)}
+let avisoT=0; function aviso(t){const a=$("toast"); a.textContent=t; a.hidden=false; clearTimeout(avisoT); avisoT=setTimeout(()=>a.hidden=true,2400)}
+const espera=ms=>new Promise(r=>setTimeout(r,ms));
+const au=$("au");
+let info=null, cur=-1, frases=null, tempos=null, idx=-1, coms=[], apagados=[], aba="cap", resp=null;
+const meusKey="clubeMeus:"+CID, posK="clubePos:"+CID;
+$("nome").value=ls.get("nomeClube","");
+$("nome").oninput=()=>ls.set("nomeClube",$("nome").value.trim());
+
+/* ---------- abrir o clube ---------- */
+async function abrir(){
+  $("tentar").hidden=true; $("estZ").textContent="⏳"; $("estT").textContent="Abrindo o clube…"; $("estS").textContent="Se o site estava parado, pode levar até 1 minuto.";
+  const t0=Date.now(); let r=null;
+  while(Date.now()-t0<120000){try{r=await fetch(`/clube/${CID}/info`,{cache:"no-store"}); if(r.status===200||r.status===404) break}catch(e){} await espera(3000)}
+  if(!r||r.status!==200){
+    $("estZ").textContent="💤"; $("estT").textContent="Este clube está dormindo (ou foi encerrado)";
+    $("estS").textContent="O servidor gratuito do VOX apaga os clubes quando reinicia. Peça para quem te mandou o link abrir o livro no VOX: o clube volta sozinho, com o mesmo link e os comentários. Depois toque em Tentar de novo. Se a pessoa encerrou o clube, o link não volta mais.";
+    $("tentar").hidden=false; return}
+  info=await r.json();
+  $("estado").hidden=true; $("heroCard").hidden=false; $("corpo").hidden=false;
+  $("titulo").textContent=info.titulo; $("cvT").textContent=info.titulo; document.title=`${info.titulo} · Clube do livro · VOX`;
+  $("dono").textContent=`Clube do livro de ${info.dono}`;
+  $("autor").hidden=!info.autor; $("autor").textContent=info.autor?"de "+info.autor:"";
+  const min=info.capitulos.reduce((a,c)=>a+(c.minutos||0),0);
+  $("resumo").textContent=`${info.capitulos.length} capítulo${info.capitulos.length>1?"s":""} · cerca de ${min<60?min+" min":Math.floor(min/60)+" h "+String(min%60).padStart(2,"0")+" min"} de áudio`;
+  if(info.tem_capa){const im=document.createElement("img"); im.alt=""; im.src=`/clube/${CID}/capa`; $("cv").prepend(im)}
+  const ol=$("chs"); ol.innerHTML="";
+  info.capitulos.forEach((c,i)=>{const li=document.createElement("li"); li.className="ch"; li.id="c"+i;
+    li.innerHTML=`<span class="n">${i+1}</span><div class="t"><div></div><small>${c.minutos} min <span class="pill"></span></small></div><button class="ib" aria-label="Ouvir">${PLAYS}</button>`;
+    li.querySelector(".t div").textContent=c.titulo; li.querySelector("button").setAttribute("aria-disabled",!c.pronto);
+    li.querySelector("button").onclick=()=>tocar(i); ol.appendChild(li)});
+  const p=ls.get(posK,{cap:0,t:0}); $("ouvir").textContent=(p.cap||p.t)?`▶ Continuar · cap. ${p.cap+1}`:"▶ Começar a ouvir";
+  $("ouvir").onclick=()=>tocar(p.cap,p.t);
+  await carregarCap(p.cap); sincronizar(); setInterval(sincronizar,20000);
+}
+$("tentar").onclick=abrir;
+
+/* ---------- tocador e texto ---------- */
+async function carregarCap(i){
+  if(!info.capitulos[i]) i=0; cur=i; idx=-1;
+  document.querySelectorAll(".ch").forEach((li,k)=>li.classList.toggle("on",k===i));
+  $("leitSub").textContent=`Capítulo ${i+1} · ${info.capitulos[i].titulo}`;
+  frases=null; tempos=null; const box=$("leitura"); box.innerHTML='<p class="vazio">Carregando o texto…</p>';
+  try{frases=(await (await fetch(`/clube/${CID}/legenda/${i}`)).json()).frases}catch(e){}
+  box.innerHTML=""; if(!frases||!frases.length){box.innerHTML='<p class="vazio">Este capítulo não tem o texto salvo.</p>'; frases=null}
+  else{let p=null; frases.forEach((u,k)=>{if(u.p||!p){p=document.createElement("p"); box.appendChild(p)}
+    const s=document.createElement("span"); s.className="fr"+(u.x?" extra":"")+(u.c?" cena":""); s.textContent=u.s+" "; s.dataset.k=k; p.appendChild(s)}); calcTempos()}
+  renderComs(); ondeComentar();
+}
+function calcTempos(){if(!frases) return; const D=isFinite(au.duration)?au.duration:null, len=frases.map(u=>Math.max(1,u.s.length)), t=frases.map(u=>u.t);
+  if(t[0]==null) t[0]=0;
+  for(let a=1;a<t.length;a++){if(t[a]!=null) continue; let b=a; while(b<t.length&&t[b]==null) b++; let C=0; for(let j=a-1;j<b;j++) C+=len[j];
+    const t0=t[a-1], t1=b<t.length?t[b]:(D||t0+C/15); let acc=len[a-1]; for(let j=a;j<b;j++){t[j]=t0+(t1-t0)*acc/C; acc+=len[j]} a=b}
+  tempos=t}
+function idxEm(s){if(!tempos) return -1; let r=0; for(let k=0;k<tempos.length;k++){if(tempos[k]<=s+0.08) r=k; else break} return r}
+async function tocar(i,t){
+  if(!info.capitulos[i]||!info.capitulos[i].pronto) return;
+  if(i!==cur||!au.src) {au.src=`/clube/${CID}/audio/${i}`; if(i!==cur) await carregarCap(i)}
+  else if(t==null){au.paused?au.play():au.pause(); return}
+  if(t) au.addEventListener("loadedmetadata",()=>{au.currentTime=t},{once:true});
+  if(t&&au.readyState>=1) au.currentTime=t;
+  au.playbackRate=+$("vel").value; au.play().catch(()=>{}); $("player").hidden=false; $("pT").textContent=`${i+1}. ${info.capitulos[i].titulo}`;
+}
+au.onplay=au.onpause=()=>{$("pI").innerHTML=au.paused?PLAY:PAUSE; $("pP").setAttribute("aria-label",au.paused?"Tocar":"Pausar")};
+au.onloadedmetadata=()=>calcTempos();
+au.ontimeupdate=()=>{$("tN").textContent=fmt(au.currentTime); $("tE").textContent=fmt(au.duration); if(au.duration) $("seek").value=1000*au.currentTime/au.duration;
+  ls.set(posK,{cap:cur,t:Math.floor(au.currentTime)}); ondeComentar();
+  const k=idxEm(au.currentTime); if(k!==idx&&k>=0){const box=$("leitura"); box.querySelectorAll(".fr.now").forEach(e=>e.classList.remove("now")); const s=box.querySelector(`[data-k="${k}"]`);
+    if(s){s.classList.add("now"); box.scrollTo({top:Math.max(0,s.offsetTop-box.clientHeight/2),behavior:"smooth"})} idx=k}};
+au.onended=()=>{if(info.capitulos[cur+1]&&info.capitulos[cur+1].pronto) tocar(cur+1,0.01)};
+$("seek").oninput=e=>{if(au.duration) au.currentTime=e.target.value/1000*au.duration};
+$("pP").onclick=()=>{if(!au.src) tocar(cur,0.01); else au.paused?au.play():au.pause()};
+$("pB").onclick=()=>au.currentTime=Math.max(0,au.currentTime-15); $("pF").onclick=()=>au.currentTime=Math.min(au.duration||0,au.currentTime+15);
+$("vel").onchange=e=>au.playbackRate=+e.target.value;
+$("leitura").addEventListener("click",e=>{const s=e.target.closest(".fr"); if(!s||!tempos) return; tocar(cur,Math.max(.01,tempos[+s.dataset.k]))});
+
+/* ---------- conversa ---------- */
+function meus(){return ls.get(meusKey,[])}
+function ondeComentar(){
+  const t=au.src&&cur>=0?au.currentTime:0;
+  $("ondeCom").textContent=resp?`Respondendo ${resp.autor}`:`Comentar no capítulo ${cur+1}, em ${fmt(t)}`;
+  $("enviar").textContent=resp?"Responder":`Comentar em ${fmt(t)}`;
+}
+function renderComs(){
+  const todos=[...coms]; meus().forEach(m=>{if(!todos.some(c=>c.id===m.id)&&!apagados.includes(m.id)) todos.push({...m,pend:1})});
+  const raiz=todos.filter(c=>!c.pai&&(aba==="todos"||c.cap===cur)).sort((a,b)=>a.cap-b.cap||a.t-b.t||a.quando-b.quando);
+  const box=$("coms"); box.innerHTML=""; $("semComs").hidden=!!raiz.length;
+  $("semComs").textContent=aba==="todos"?"Ninguém comentou ainda. Que tal começar?":"Ninguém comentou este capítulo ainda. Que tal começar?";
+  raiz.forEach(c=>{box.appendChild(item(c,false)); todos.filter(r=>r.pai===c.id).sort((a,b)=>a.quando-b.quando).forEach(r=>box.appendChild(item(r,true)))});
+}
+function item(c,eResp){
+  const li=document.createElement("li"); li.className="cm"+(eResp?" resp":"")+(c.pend?" pend":"");
+  li.innerHTML=`<div class="cm-h"><b></b>${c.dono?'<span class="dono">criou o clube</span>':""}${eResp?"":'<button class="ir"></button>'}</div><p class="cm-t"></p>${eResp?"":'<button class="resp-b">Responder</button>'}`;
+  li.querySelector("b").textContent=c.autor; li.querySelector(".cm-t").textContent=c.texto;
+  if(!eResp){const ir=li.querySelector(".ir"); ir.textContent=`▶ cap. ${c.cap+1} · ${fmt(c.t)}`; ir.onclick=()=>tocar(c.cap,Math.max(.01,c.t-2));
+    li.querySelector(".resp-b").onclick=()=>{resp=c; $("cancResp").hidden=false; ondeComentar(); $("txt").focus()}}
+  return li;
+}
+$("cancResp").onclick=()=>{resp=null; $("cancResp").hidden=true; ondeComentar()};
+$("tabCap").onclick=()=>{aba="cap"; $("tabCap").setAttribute("aria-pressed",true); $("tabTodos").setAttribute("aria-pressed",false); renderComs()};
+$("tabTodos").onclick=()=>{aba="todos"; $("tabTodos").setAttribute("aria-pressed",true); $("tabCap").setAttribute("aria-pressed",false); renderComs()};
+$("enviar").onclick=async()=>{
+  const t=$("txt").value.trim(); if(!t){$("txt").focus(); return}
+  const nome=$("nome").value.trim(); if(!nome){$("comMsg").textContent="Escreva seu nome lá em cima primeiro."; $("nome").focus(); return}
+  const c={id:Date.now().toString(36)+Math.random().toString(36).slice(2,8),autor:nome,texto:t,cap:resp?resp.cap:cur,t:resp?resp.t:+(au.src?au.currentTime:0).toFixed(1),quando:Date.now(),...(resp?{pai:resp.id}:{})};
+  ls.set(meusKey,[...meus(),c]); $("txt").value=""; resp=null; $("cancResp").hidden=true; $("comMsg").textContent=""; renderComs(); ondeComentar();
+  await sincronizar(); aviso("Comentário enviado");
+};
+async function sincronizar(){
+  try{
+    const pend=meus().filter(m=>!coms.some(c=>c.id===m.id));
+    const r=pend.length?await fetch(`/clube/${CID}/comentarios`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({comentarios:pend})})
+                       :await fetch(`/clube/${CID}/comentarios`,{cache:"no-store"});
+    if(!r.ok) return; const j=await r.json(); coms=j.comentarios; apagados=j.apagados||[];
+    ls.set(meusKey,meus().filter(m=>!apagados.includes(m.id))); renderComs();
+  }catch(e){}
+}
+
+/* ---------- guardar na biblioteca do VOX (mesmo aparelho) ---------- */
+const DB=new Promise((res,rej)=>{const r=indexedDB.open("vox",1);
+  r.onupgradeneeded=()=>{const d=r.result; if(!d.objectStoreNames.contains("livros")) d.createObjectStore("livros",{keyPath:"id"}); if(!d.objectStoreNames.contains("audios")) d.createObjectStore("audios")};
+  r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error)});
+const put=(st,v,k)=>DB.then(d=>new Promise((res,rej)=>{const t=d.transaction(st,"readwrite"); k===undefined?t.objectStore(st).put(v):t.objectStore(st).put(v,k); t.oncomplete=res; t.onerror=()=>rej(t.error)}));
+$("guardar").onclick=async()=>{
+  const el=$("guardarMsg"), b=$("guardar"); b.disabled=true;
+  try{
+    const id="clube-"+CID, legendas={}, salvos=[];
+    for(const [i,c] of info.capitulos.entries()){
+      if(!c.pronto) continue; msg(el,`Guardando o capítulo ${i+1} de ${info.capitulos.length}…`);
+      const a=await (await fetch(`/clube/${CID}/audio/${i}`)).blob(); await put("audios",a,`${id}:${i}`); salvos.push(i);
+      try{const f=(await (await fetch(`/clube/${CID}/legenda/${i}`)).json()).frases; if(f&&f.length) legendas[i]=f}catch(e){}
+    }
+    let capa=null; if(info.tem_capa){try{capa=await (await fetch(`/clube/${CID}/capa`)).blob()}catch(e){}}
+    await put("livros",{id,titulo:info.titulo,autor:info.autor||"",criado:Date.now(),salvos,legendas,capa,paginas:null,
+      capitulos:info.capitulos.map(c=>({titulo:c.titulo,minutos:c.minutos,pag_ini:null,pag_fim:null})),clube:{cid:CID,convidado:true,dono:info.dono}});
+    el.innerHTML=""; el.hidden=false; el.append("Guardado! O livro agora está na sua biblioteca do VOX, para ouvir até sem internet. ");
+    const a=document.createElement("a"); a.href="/"; a.textContent="Abrir a biblioteca →"; el.append(a);
+  }catch(e){msg(el,"Não consegui guardar: o aparelho pode estar sem espaço.",true)}
+  finally{b.disabled=false}
+};
+abrir();
+</script>
+</body>
+</html>

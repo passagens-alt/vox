@@ -15,6 +15,8 @@ from numeros import falar_numeros
 
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 80 * 1024 * 1024
+from clube import bp as clube_bp  # noqa: E402
+app.register_blueprint(clube_bp)
 PASTA = os.path.join(tempfile.gettempdir(), "vox")
 os.makedirs(PASTA, exist_ok=True)
 JOBS = {}

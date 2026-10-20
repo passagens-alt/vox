@@ -6,6 +6,13 @@ Envie um PDF, EPUB ou Word (.docx), escolha a voz e receba o audiolivro em MP3, 
 
 - **Minha biblioteca**: cada audiolivro gerado fica guardado no próprio aparelho de quem usou (no navegador). Dá para ouvir de novo, até sem internet, mesmo que o servidor reinicie.
 - **Estantes e etiquetas**: a biblioteca separa sozinha em Lendo, Não começados e Terminados; você cria etiquetas próprias (Estudo, Romance…), filtra por elas e busca pelo título. Dá para marcar um livro como lido.
+- **Editar livro**: no "Mais ▾" de cada livro, troque título e autor, coloque o livro numa série e escolha a capa (outra página do PDF ou uma imagem sua).
+- **Séries**: livros da mesma série ficam juntos (filtro 📚) e tocam na ordem: quando um termina, o próximo começa sozinho (dá para cancelar no aviso).
+- **Ordenar**: mais recentes, título (A–Z), mais ouvidos, quase terminados ou por série. A busca acha título, autor e série.
+- **Lixeira**: o livro excluído vai para a lixeira (com "Desfazer" na hora) e some sozinho depois de 7 dias. Dá para restaurar, apagar na hora ou esvaziar a lixeira.
+- **Clube do livro**: na página do livro, "Criar link do clube" gera um link para amigos ouvirem o mesmo livro (com o texto acompanhando) e comentarem trechos: cada comentário fica preso a um momento do áudio, com respostas. Seus marcadores com anotação entram na conversa. Quem criou pode apagar comentários e encerrar o clube; o amigo pode guardar o livro na própria biblioteca do VOX.
+- **Cartão de conquista**: em "Seus números", gera uma imagem (post 4:5 ou story 9:16) com os livros terminados no mês ou no ano, as capas, as horas, as páginas e os dias ouvindo, para baixar ou compartilhar.
+- **Modo apresentação**: no "Acompanhar o texto", o botão "📽 Apresentar" abre uma tela para projetor com a frase atual bem grande, a anterior e a próxima. Funciona com teclado e passador de slides (← →, PageUp/PageDown, Espaço), tem tema claro e escuro, letra ajustável e a opção de pausar a cada parágrafo.
 - **Seus números**: tempo ouvido hoje e nos últimos 7 dias (com gráfico), dias seguidos ouvindo e livros terminados no ano.
 - **Backup**: o botão "Fazer backup" baixa um arquivo .vox com tudo (livros, áudios, marcadores, posição, pronúncias e números). Em outro aparelho, "Restaurar backup" coloca tudo de volta. Também dá para fazer backup de um livro só.
 - **Tocador completo**: velocidade de 0,75× a 2×, voltar/avançar 15 s, timer para dormir (15, 30, 45, 60 min ou fim do capítulo), continua de onde parou e funciona com os controles da tela de bloqueio do celular.
@@ -77,3 +84,10 @@ Use **1 worker**: os pedidos ficam guardados na memória do processo.
 - Um livro de 200 páginas leva alguns minutos; cada capítulo fica disponível assim que termina.
 - As vozes gratuitas vêm do serviço de leitura em voz alta do Edge (biblioteca `edge-tts`). Não é um serviço oficial com garantia; para um site comercial, prefira as vozes premium.
 - Só distribua audiolivros de obras que você tem direito de usar.
+
+## Clube do livro e o plano grátis do Render
+
+No plano grátis, o Render apaga os arquivos do servidor quando ele reinicia ou dorme. Para o clube não se perder, o aparelho de quem criou guarda uma chave secreta e reenvia o livro e os comentários sozinho sempre que abre o livro no VOX (o link continua o mesmo, e só quem tem a chave consegue recriar o clube). Quem abrir o link enquanto o clube estiver "dormindo" vê um aviso para pedir isso.
+
+Para os clubes ficarem guardados de vez: num plano pago do Render, adicione um **Disk** (por exemplo montado em `/dados`) e crie a variável de ambiente `VOX_DADOS=/dados/clubes`.
+
